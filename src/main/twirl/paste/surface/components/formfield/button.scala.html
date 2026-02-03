@@ -1,0 +1,10 @@
+@import com.pastestack.surface.view_models.components.formfield.Button
+
+@(field: Button)
+
+<button type="@field.buttonType"
+        name="@field.name"
+        class="paste-ui-button"
+        @if(field.disabled){ disabled }
+        @for((k, v) <- field.dataAttributes) { data-@k="@v" }
+>@field.label</button>

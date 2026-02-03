@@ -1,0 +1,41 @@
+@import com.pastestack.surface.view_models.page.PageMeta
+
+@(pageMeta: PageMeta)(headContent: Html)(navContent: Html)(mainContent: Html)(footerContent: Html)(scriptIncludes: Html)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@pageMeta.title — @pageMeta.siteName</title>
+    <meta name="description" content="@pageMeta.description">
+    @if(pageMeta.keywords.nonEmpty) {
+    <meta name="keywords" content="@pageMeta.keywords">
+    }
+    @if(pageMeta.themeColor.nonEmpty) {
+    <meta name="theme-color" content="#@pageMeta.themeColor">
+    }
+    @if(pageMeta.url.nonEmpty) {
+    <link rel="canonical" href="https://@pageMeta.url">
+    }
+    <meta property="og:site_name" content="@pageMeta.siteName">
+    <meta property="og:title" content="@pageMeta.title">
+    <meta property="og:description" content="@pageMeta.description">
+    @pageMeta.fbSiteType.map { siteType =>
+    <meta property="og:type" content="@siteType">
+    }
+    @headContent
+</head>
+<body>
+    <header class="paste-ui-header">
+        @navContent
+    </header>
+    <main class="paste-ui-main">
+        @mainContent
+    </main>
+    <footer class="paste-ui-footer">
+        @footerContent
+    </footer>
+    @scriptIncludes
+</body>
+</html>
