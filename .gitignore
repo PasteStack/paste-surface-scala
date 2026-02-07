@@ -1,18 +1,39 @@
-# Scala/SBT
-target/
-project/target/
-project/project/
-.bsp/
+# --- BEGIN multi-project ignores ---
 
 # IDE
 .idea/
 *.iml
+.metals/
 .vscode/
+
+# Logs
+*.log
+
+# Secrets
+*.env
+.secure_files/*
+!.secure_files/
+!.secure_files/*.example
+cache.config
+credentials.config
+endpoint.config
+
+.credentials*
+!.credentials*.example
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Credentials
-.credentials*
-!.credentials*.example
+# --- END multi-project ignores ---
+
+# SBT
+.bsp/
+target/
+project/project/
+project/target/
+.sbt/
+
+# Compiled
+*.class
+*.jar
