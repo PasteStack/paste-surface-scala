@@ -1,0 +1,10 @@
+@import com.pastestack.surface.view_models.includes.CSSInclude
+
+@(include: CSSInclude)
+
+@* Debug mode: use source files, Prod mode: use minified *@
+@for(path <- include.pasteIncludes) {
+@defining(if(include.debugMode) path else path.replaceAll("\\.css$", ".min.css")) { resolvedPath =>
+<link rel="stylesheet" href="@resolvedPath" type="text/css">
+}
+}

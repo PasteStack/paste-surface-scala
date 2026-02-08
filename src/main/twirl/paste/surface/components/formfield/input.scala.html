@@ -1,0 +1,27 @@
+@import com.pastestack.surface.view_models.components.formfield.Input
+
+@(field: Input)
+
+<div class="paste-ui-formfield paste-ui-formfield-input@if(field.errors.nonEmpty){ has-error}">
+    @field.label.map { lbl =>
+    <label@field.id.map { i => for="@i"}>@lbl@if(field.required){<span class="required">*</span>}</label>
+    }
+    <input type="@field.inputType"
+           @field.id.map { i => id="@i" }
+           name="@field.name"
+           value="@field.value"
+           @field.placeholder.map { p => placeholder="@p" }
+           @if(field.required){ required }
+           @if(field.disabled){ disabled }
+           @field.maxLength.map { ml => maxlength="@ml" }
+           @field.pattern.map { p => pattern="@p" }
+           @field.autocomplete.map { ac => autocomplete="@ac" }
+           @for((k, v) <- field.dataAttributes) { data-@k="@v" }
+    >
+    @field.description.map { desc =>
+    <p class="paste-ui-formfield-description">@desc</p>
+    }
+    @for(error <- field.errors) {
+    <p class="paste-ui-formfield-error">@error</p>
+    }
+</div>
