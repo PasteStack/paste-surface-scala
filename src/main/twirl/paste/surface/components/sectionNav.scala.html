@@ -1,0 +1,13 @@
+@import com.pastestack.surface.view_models.components.{SectionNav, NavItem}
+
+@(nav: SectionNav)
+
+<nav class="paste-ui-section-nav@if(nav.cssClass.nonEmpty){ @nav.cssClass}"@if(nav.sticky){ data-paste-sticky-nav}>
+    <ul class="paste-ui-section-nav-items">
+        @for(item <- nav.items) {
+        <li class="paste-ui-section-nav-item@if(item.cssClass.nonEmpty){ @item.cssClass}">
+            <a href="#@item.targetId">@item.label</a>
+        </li>
+        }
+    </ul>
+</nav>
