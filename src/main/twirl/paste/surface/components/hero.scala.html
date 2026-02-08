@@ -1,0 +1,18 @@
+@import com.pastestack.surface.view_models.components.Hero
+
+@(hero: Hero)(content: Html)
+
+<section class="paste-ui-hero@if(hero.showImage){ paste-ui-hero-with-image}"
+         id="hero-@hero.name"
+         data-paste-hero="@hero.name"
+         @if(!hero.disableParallax){data-paste-parallax="true"}
+         @if(hero.stickyNavTarget){data-paste-sticky-target="true"}>
+    @if(hero.showImage) {
+    <div class="paste-ui-hero-image" id="@hero.name-image"></div>
+    }
+    @if(!hero.noContent) {
+    <div class="paste-ui-hero-content">
+        @content
+    </div>
+    }
+</section>

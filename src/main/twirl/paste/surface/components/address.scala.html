@@ -1,0 +1,14 @@
+@import com.pastestack.surface.view_models.components.Address
+
+@(address: Address)
+
+<address class="paste-ui-address" itemscope itemtype="http://schema.org/PostalAddress">
+    <span itemprop="streetAddress">@address.street1</span>
+    @address.street2.map { s2 =>
+    <span itemprop="streetAddress">@s2</span>
+    }
+    <span itemprop="addressLocality">@address.locality</span>,
+    <span itemprop="addressRegion"@address.regionTitle.map { rt => title="@rt"}>@address.region</span>
+    <span itemprop="postalCode">@address.postalCode</span>
+    <span itemprop="addressCountry">@address.countryCode</span>
+</address>

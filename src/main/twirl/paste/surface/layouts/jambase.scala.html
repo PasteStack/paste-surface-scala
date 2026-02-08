@@ -1,0 +1,83 @@
+@import com.pastestack.surface.view_models.page.PageMeta
+@import com.pastestack.surface.view_models.includes.CSSInclude
+@import com.pastestack.surface.view_models.includes.JSInclude
+
+@**
+ * Base layout with JAM include stubs.
+ * 
+ * CSS renders in <head>, JS renders at bottom of <body>.
+ *
+ * @param meta Page metadata (title, description, etc.)
+ * @param cssInclude CSS includes for head
+ * @param jsInclude JS includes for bottom of body
+ * @param headContent Additional head content (fonts, meta tags)
+ * @param headerContent Header/nav content
+ * @param mainContent Main page content
+ * @param footerContent Footer content
+ * @param footerScripts Additional scripts after JAM includes
+ *@
+
+@(meta: PageMeta, cssInclude: CSSInclude = CSSInclude(), jsInclude: JSInclude = JSInclude())(headContent: Html = Html(""))(headerContent: Html = Html(""))(mainContent: Html)(footerContent: Html = Html(""))(footerScripts: Html = Html(""))
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>@meta.title@if(meta.siteName.nonEmpty){ | @meta.siteName}</title>
+    
+    @if(meta.description.nonEmpty) {
+    <meta name="description" content="@meta.description">
+    }
+    @if(meta.keywords.nonEmpty) {
+    <meta name="keywords" content="@meta.keywords">
+    }
+    @if(meta.themeColor.nonEmpty) {
+    <meta name="theme-color" content="#@meta.themeColor">
+    }
+    
+    @* Open Graph *@
+    <meta property="og:title" content="@meta.title">
+    @if(meta.description.nonEmpty) {
+    <meta property="og:description" content="@meta.description">
+    }
+    <meta property="og:site_name" content="@meta.siteName">
+    @if(meta.url.nonEmpty) {
+    <meta property="og:url" content="@meta.url">
+    }
+    @meta.fbSiteType.map { siteType =>
+    <meta property="og:type" content="@siteType">
+    }
+    
+    @* Additional head content (fonts, custom meta) *@
+    @headContent
+    
+    @* === CSS INCLUDES === *@
+    @paste.surface.includes.html.css(cssInclude)
+</head>
+<body>
+    @if(headerContent.body.nonEmpty) {
+    <header>
+        @headerContent
+    </header>
+    }
+    
+    <main>
+        @mainContent
+    </main>
+    
+    @if(footerContent.body.nonEmpty) {
+    <footer>
+        @footerContent
+    </footer>
+    }
+    
+    @* === JS INCLUDES === *@
+    @paste.surface.includes.html.js(jsInclude)
+    
+    @* Additional footer scripts *@
+    @footerScripts
+</body>
+</html>

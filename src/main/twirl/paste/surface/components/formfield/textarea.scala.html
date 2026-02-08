@@ -1,0 +1,24 @@
+@import com.pastestack.surface.view_models.components.formfield.Textarea
+
+@(field: Textarea)
+
+<div class="paste-ui-formfield paste-ui-formfield-textarea@if(field.errors.nonEmpty){ has-error}">
+    @field.label.map { lbl =>
+    <label@field.id.map { i => for="@i"}>@lbl@if(field.required){<span class="required">*</span>}</label>
+    }
+    <textarea @field.id.map { i => id="@i" }
+              name="@field.name"
+              rows="@field.rows"
+              @field.placeholder.map { p => placeholder="@p" }
+              @field.maxLength.map { ml => maxlength="@ml" }
+              @if(field.required){ required }
+              @if(field.disabled){ disabled }
+              @for((k, v) <- field.dataAttributes) { data-@k="@v" }
+    >@field.value</textarea>
+    @field.description.map { desc =>
+    <p class="paste-ui-formfield-description">@desc</p>
+    }
+    @for(error <- field.errors) {
+    <p class="paste-ui-formfield-error">@error</p>
+    }
+</div>

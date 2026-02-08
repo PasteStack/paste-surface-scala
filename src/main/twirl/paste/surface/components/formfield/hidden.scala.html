@@ -1,0 +1,7 @@
+@import com.pastestack.surface.view_models.components.formfield.Hidden
+
+@(field: Hidden)
+
+@for((name, value) <- field.fields) {
+<input type="hidden" name="@name" value="@value">
+}
