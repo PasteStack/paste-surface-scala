@@ -9,5 +9,8 @@ case class NavItem(
 case class SectionNav(
   items: Seq[NavItem],
   sticky: Boolean = true,
+  stickyMinWidth: Int = 0,
+  scrollspy: Boolean = false,
+  scrollspyMinWidth: Int = 0,
   cssClass: String = ""
 )

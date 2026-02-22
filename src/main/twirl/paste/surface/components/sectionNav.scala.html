@@ -2,7 +2,7 @@
 
 @(nav: SectionNav)
 
-<nav class="paste-ui-section-nav@if(nav.cssClass.nonEmpty){ @nav.cssClass}"@if(nav.sticky){ data-paste-sticky-nav}>
+<nav class="paste-ui-section-nav@if(nav.cssClass.nonEmpty){ @nav.cssClass}"@if(nav.sticky){ data-paste-sticky-nav}@if(nav.stickyMinWidth > 0){ data-sticky-min-width="@nav.stickyMinWidth"}@if(nav.scrollspy){ data-paste-scrollspy}@if(nav.scrollspyMinWidth > 0){ data-spy-min-width="@nav.scrollspyMinWidth"}>
     <ul class="paste-ui-section-nav-items">
         @for(item <- nav.items) {
         <li class="paste-ui-section-nav-item@if(item.cssClass.nonEmpty){ @item.cssClass}">
