@@ -24,6 +24,21 @@ package object surface {
   type Address = view_models.components.Address
   val Address = view_models.components.Address
   
+  type NavItem = view_models.components.NavItem
+  val NavItem = view_models.components.NavItem
+  
+  type SectionNav = view_models.components.SectionNav
+  val SectionNav = view_models.components.SectionNav
+  
+  type Logo = view_models.components.Logo
+  val Logo = view_models.components.Logo
+  
+  type Carousel = view_models.components.Carousel
+  val Carousel = view_models.components.Carousel
+  
+  type CarouselSlide = view_models.components.CarouselSlide
+  val CarouselSlide = view_models.components.CarouselSlide
+  
   // Components: Form Fields
   type Input = view_models.components.formfield.Input
   val Input = view_models.components.formfield.Input

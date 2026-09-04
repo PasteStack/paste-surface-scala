@@ -1,0 +1,12 @@
+@import com.pastestack.surface.view_models.components.Carousel
+
+@(carousel: Carousel)(content: Html)
+
+<div class="paste-ui-carousel@if(carousel.cssClass.nonEmpty){ @carousel.cssClass}"
+     @if(carousel.name.nonEmpty){data-paste-carousel-name="@carousel.name"}
+     @if(carousel.autoCycleMs > 0){data-paste-carousel-autocycle="@carousel.autoCycleMs"}
+     @if(carousel.showIndicators){data-paste-carousel-indicate}>
+    <div class="paste-ui-carousel-items">
+    @content
+    </div>
+</div>

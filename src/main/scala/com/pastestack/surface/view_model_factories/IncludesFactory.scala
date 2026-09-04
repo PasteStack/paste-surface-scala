@@ -18,7 +18,7 @@ object IncludesFactory {
   // Standard paste modules
   val PASTE_CORE = Seq("paste", "paste.dom", "paste.event", "paste.util")
   val PASTE_UI = Seq("paste.ui.heroscroll", "paste.ui.stickynav", "paste.ui.smoothscroll")
-  val PASTE_FORMS = Seq("paste.ui.autogrow", "paste.ui.throttle")
+  val PASTE_FORMS = Seq("paste.ui.autogrow", "paste.ui.utilities.throttle")
   
   /**
    * Create JS include for paste core + UI modules via JAM.
