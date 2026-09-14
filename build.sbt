@@ -13,11 +13,13 @@ lazy val `paste-surface-scala` = (project in file("."))
     // The house Scala 3 line (magicroot's ProjectSettingDefinitions.Scala3).
     scalaVersion := "3.4.2",
     magicRootPublishGitLabProjectId := sys.env.get("TOMSHLEY_CICD_PUBLISH_PROJECT_ID").map(_.toInt).getOrElse(70289607),
-    // The plugin looks for .credentials.gitlab in the build root; CI and local
-    // runs get it as a secure file, so read it from there as well.
+    // The plugin looks for .credentials.gitlab in the build root; local runs get
+    // it as a secure file, so read it from there as well. In CI the plugin already
+    // authenticates with the job token, and a second credential for the same
+    // realm would override it.
     credentials ++= {
       val secureFile = (ThisBuild / baseDirectory).value / ".secure_files" / ".credentials.gitlab"
-      if (secureFile.exists()) Seq(Credentials(secureFile)) else Seq.empty
+      if (sys.env.contains("CI_JOB_TOKEN") || !secureFile.exists()) Seq.empty else Seq(Credentials(secureFile))
     },
     version := {
       // VERSION is the single source of the released version, as it is for every
