@@ -6,7 +6,7 @@ import com.pastestack.surface.view_model_factories.{PageMetaFactory, IncludesFac
  * Configuration loader for paste-surface.
  * 
  * A consuming site stores its configuration in resources/paste-surface.conf
- * and load it once at startup.
+ * and loads it once at startup.
  * 
  * == Usage ==
  * {{{
@@ -43,7 +43,6 @@ object SurfaceConfig {
       ),
       assets = IncludesFactory.AssetConfig(
         version = ps.getString("assets.version"),
-        checksum = ps.getString("assets.checksum"),
         debugMode = ps.getBoolean("assets.debug-mode")
       )
     )
@@ -65,10 +64,9 @@ object SurfaceConfig {
     domainName: String,
     themeColor: String = "",
     assetVersion: String = "",
-    assetChecksum: String = "",
     debugMode: Boolean = false
   ): SurfaceConfig = SurfaceConfig(
     site = PageMetaFactory.SiteConfig(siteName, domainName, themeColor),
-    assets = IncludesFactory.AssetConfig(assetVersion, assetChecksum, debugMode)
+    assets = IncludesFactory.AssetConfig(assetVersion, debugMode)
   )
 }

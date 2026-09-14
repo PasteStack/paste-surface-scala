@@ -4,9 +4,16 @@
 
 <section id="@hero.name" class="paste-ui-hero@if(hero.showImage){ paste-ui-hero-with-image}@if(hero.stickyNavTarget){ sticky-nav-target}"
          data-paste-hero="@hero.name"
-         @if(!hero.disableParallax){data-paste-parallax="true"}
+         @if(hero.imageSequence.isEmpty && !hero.disableParallax){data-paste-parallax="true"}
          @if(hero.stickyNavTarget){data-paste-sticky-target="true"}>
-    @if(hero.showImage) {
+    @hero.imageSequence.map { sequence =>
+        @paste.surface.components.html.imagesequence(
+            sequence,
+            s"${hero.name}-image",
+            sequence.progressTargetId.getOrElse(hero.name)
+        )
+    }
+    @if(hero.imageSequence.isEmpty && hero.showImage) {
         <i id="@hero.name-image" class="@if(hero.disableParallax) { paste-ui-hero-basicimage } else { paste-ui-hero-image }"></i>
     }
     @if(!hero.noContent) {

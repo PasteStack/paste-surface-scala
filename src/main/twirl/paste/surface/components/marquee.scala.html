@@ -1,0 +1,16 @@
+@import com.pastestack.surface.view_models.components.Marquee
+
+@(marquee: Marquee)(items: Seq[Html])
+
+<div class="paste-ui-marquee@if(marquee.cssClass.nonEmpty){ @marquee.cssClass}"
+     data-paste-marquee
+     data-paste-marquee-duration="@marquee.durationSeconds"
+     data-paste-marquee-pause-label="@marquee.pauseLabel"
+     data-paste-marquee-resume-label="@marquee.resumeLabel">
+    <ul class="paste-ui-marquee-items" role="list" aria-label="@marquee.label">
+        @for(item <- items) {
+        <li class="paste-ui-marquee-item">@item</li>
+        }
+    </ul>
+    <button class="paste-ui-marquee-toggle" type="button" hidden disabled>@marquee.pauseLabel</button>
+</div>

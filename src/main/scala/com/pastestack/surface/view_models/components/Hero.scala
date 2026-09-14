@@ -5,5 +5,6 @@ case class Hero(
   noContent: Boolean = false,
   showImage: Boolean = false,
   disableParallax: Boolean = false,
-  stickyNavTarget: Boolean = false
+  stickyNavTarget: Boolean = false,
+  imageSequence: Option[ImageSequence] = None
 )

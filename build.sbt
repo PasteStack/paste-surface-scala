@@ -1,4 +1,4 @@
-import scala.io.Source
+import com.tomshley.magicroot.sbt.projectsettings.PublishGitLabPlugin
 
 lazy val projectName = "paste-surface-scala"
 lazy val projectOrgName = "com.pastestack"
@@ -6,54 +6,36 @@ lazy val projectOrgName = "com.pastestack"
 ThisBuild / versionScheme := Some("semver-spec")
 
 lazy val `paste-surface-scala` = (project in file("."))
-  .enablePlugins(SbtTwirl)
+  .enablePlugins(SbtTwirl, PublishGitLabPlugin)
   .settings(
     name := projectName,
     organization := projectOrgName,
-    scalaVersion := "3.3.3",
-    version := {
-      val versionFile = baseDirectory.value / "VERSION"
-      val base = if (versionFile.exists()) IO.readLines(versionFile).filter(_.nonEmpty).mkString.trim
-                 else "0.1.0"
-      if (sys.env.contains("CI_COMMIT_TAG")) base
-      else s"$base-SNAPSHOT"
+    // The house Scala 3 line (magicroot's ProjectSettingDefinitions.Scala3).
+    scalaVersion := "3.4.2",
+    magicRootPublishGitLabProjectId := sys.env.get("TOMSHLEY_CICD_PUBLISH_PROJECT_ID").map(_.toInt).getOrElse(70289607),
+    // The plugin looks for .credentials.gitlab in the build root; CI and local
+    // runs get it as a secure file, so read it from there as well.
+    credentials ++= {
+      val secureFile = (ThisBuild / baseDirectory).value / ".secure_files" / ".credentials.gitlab"
+      if (secureFile.exists()) Seq(Credentials(secureFile)) else Seq.empty
     },
-    
-    // Twirl settings
+    version := {
+      // VERSION is the single source of the released version, as it is for every
+      // other project in the family; CI checks a release tag against the same file.
+      val baseVersion = IO.read(baseDirectory.value / "VERSION").trim
+      val tag = sys.env.get("CI_COMMIT_TAG").filter(_.nonEmpty)
+      val revision = sys.env.get("TOMSHLEY_CICD_BUILD_REVISION").filter(_.nonEmpty)
+      tag.map(_.stripPrefix("v"))
+        .orElse(revision.map(r => s"$baseVersion-$r"))
+        .getOrElse(baseVersion)
+    },
     Compile / TwirlKeys.compileTemplates / sourceDirectories := Seq(
       (Compile / sourceDirectory).value / "twirl"
     ),
-    
     libraryDependencies ++= Seq(
       "org.playframework.twirl" %% "twirl-api" % "2.0.1",
       "com.typesafe" % "config" % "1.4.3"
     ),
-    
-    // Publishing
-    publishMavenStyle := true,
-    publishTo := Some("gitlab-maven" at
-      s"https://gitlab.com/api/v4/projects/${sys.env.getOrElse("GITLAB_PUBLISH_PROJECT_ID", "70289607")}/packages/maven"),
-    credentials ++= {
-      val projectCredentials = file(".secure_files") / ".credentials.gitlab"
-      val homeCredentials = Path.userHome / ".sbt" / "gitlab-token"
-
-      if (projectCredentials.exists()) {
-        Seq(Credentials(projectCredentials))
-      } else if (homeCredentials.exists()) {
-        Seq(Credentials(
-          "GitLab Packages Registry",
-          "gitlab.com",
-          "Private-Token",
-          Source.fromFile(homeCredentials).getLines().mkString.trim
-        ))
-      } else {
-        sys.env.get("GITLAB_TOKEN").map { token =>
-          Credentials("GitLab Packages Registry", "gitlab.com", "Private-Token", token)
-        }.toSeq
-      }
-    },
-    
-    // Scala compiler options
     scalacOptions ++= Seq(
       "-encoding", "utf8",
       "-deprecation",

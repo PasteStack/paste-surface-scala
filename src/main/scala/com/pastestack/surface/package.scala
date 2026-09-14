@@ -3,7 +3,7 @@ package com.pastestack
 /**
  * PasteStack Surface - MVP-inspired templating layer
  * 
- * Structure inspired by srv/up/wellness:
+ * Package structure:
  * - view_models: Data classes for templates
  * - view_model_factories: Create ViewModels from domain data
  * - presenters: Orchestrate complex pages
@@ -20,6 +20,13 @@ package object surface {
   // Components
   type Hero = view_models.components.Hero
   val Hero = view_models.components.Hero
+
+  type ImageSequence = view_models.components.ImageSequence
+  val ImageSequence = view_models.components.ImageSequence
+  type ImageSequenceIntro = view_models.components.ImageSequenceIntro
+  val ImageSequenceIntro = view_models.components.ImageSequenceIntro
+  type ImageSequencePoster = view_models.components.ImageSequencePoster
+  val ImageSequencePoster = view_models.components.ImageSequencePoster
   
   type Address = view_models.components.Address
   val Address = view_models.components.Address
@@ -29,6 +36,9 @@ package object surface {
   
   type SectionNav = view_models.components.SectionNav
   val SectionNav = view_models.components.SectionNav
+
+  type Marquee = view_models.components.Marquee
+  val Marquee = view_models.components.Marquee
   
   type Logo = view_models.components.Logo
   val Logo = view_models.components.Logo

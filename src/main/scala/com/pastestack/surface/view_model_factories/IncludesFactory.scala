@@ -11,7 +11,6 @@ object IncludesFactory {
   
   case class AssetConfig(
     version: String,
-    checksum: String,
     debugMode: Boolean = false
   )
   
@@ -23,24 +22,28 @@ object IncludesFactory {
   /**
    * Create JS include for paste core + UI modules via JAM.
    */
-  def forPasteJam(config: AssetConfig, additionalModules: Seq[String] = Seq.empty): JSInclude = {
+  def forPasteJam(
+    config: AssetConfig,
+    additionalModules: Seq[String] = Seq.empty,
+    moduleVersions: Map[String, String] = Map.empty
+  ): JSInclude = {
     JSInclude(
       debugMode = config.debugMode,
       jamModules = PASTE_CORE ++ PASTE_UI ++ additionalModules,
       jamVersion = config.version,
-      jamChecksum = config.checksum
+      jamModuleVersions = moduleVersions
     )
   }
   
   /**
    * Create JS include for forms (autogrow, validation).
    */
-  def forForms(config: AssetConfig): JSInclude = {
+  def forForms(config: AssetConfig, moduleVersions: Map[String, String] = Map.empty): JSInclude = {
     JSInclude(
       debugMode = config.debugMode,
       jamModules = PASTE_CORE ++ PASTE_FORMS,
       jamVersion = config.version,
-      jamChecksum = config.checksum
+      jamModuleVersions = moduleVersions
     )
   }
   

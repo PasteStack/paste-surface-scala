@@ -1,53 +1,66 @@
-# Copyright (c) 2024–2026 Tomshley
-#
-# Licensed under the Apache License, Version 2.0
-
-# ---------------------------------------------------------------------------
-# Shared CI/CD templates from cicd-pipelines
-# ---------------------------------------------------------------------------
 include:
   - project: 'tomshley/brands/global/tware/tech/products/provisioning/cicd-pipelines'
-    ref: 'v0.1.1'
-    file:
-      - '/gitlab/ci/.stages-base.yml'
-      - '/gitlab/ci/.gitflow-base.yml'
-      - '/gitlab/ci/.gitflow-branch-policy.yml'
-      - '/gitlab/ci/.sbt-runtime.yml'
-      - '/gitlab/ci/.container-tags.yml'
-      - '/gitlab/ci/.artifact-publish-policy.yml'
-      - '/gitlab/ci/.security-scanning.yml'
+    ref: 'v0.9.0'
+    file: '/adapters/gitlab/ci/adapter.yml'
 
 variables:
-  CICD_PIPELINES_RUNNER_TAG: "0.1.1"
+  CICD_PIPELINES_RUNNER_TAG: "0.9.0"
+  BASE_CONTAINERS_REGISTRY: registry.gitlab.com/tomshley/brands/global/tware/tech/products/provisioning/base-containers
+  BASE_CONTAINERS_UPSTREAM_TAG: "0.5.0"
+  SBT_OPTS: "-Xmx2G -Dsbt.log.noformat=true"
 
-# ---------------------------------------------------------------------------
-# Build
-# ---------------------------------------------------------------------------
-build-sbt:
-  extends:
-    - .tomshley-sbt-runtime
+# Branch and tag pipelines carry the build; merge request pipelines would only
+# duplicate them (the adapter's workflow admits both), so they are skipped here.
+# Tag pipelines must keep these jobs: the publish job declares `needs` on them.
+.runs-on-branch-or-tag:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_BRANCH'
+
+compile:
+  extends: [.runs-on-branch-or-tag]
+  image: ${CICD_PIPELINES_REGISTRY}/cicd-runner-sbtdockertofu:${CICD_PIPELINES_RUNNER_TAG}
   stage: build
+  tags: [saas-linux-medium-amd64]
   script:
-    - sbt compile
+    - sbt compile Test/compile
+  artifacts:
+    paths: [target/, project/target/]
+    expire_in: 1 day
 
-# ---------------------------------------------------------------------------
-# Test
-# ---------------------------------------------------------------------------
-test-sbt:
-  extends:
-    - .tomshley-sbt-runtime
+test:
+  extends: [.runs-on-branch-or-tag]
+  image: ${CICD_PIPELINES_REGISTRY}/cicd-runner-sbtdockertofu:${CICD_PIPELINES_RUNNER_TAG}
   stage: test
-  needs: ["build-sbt"]
+  tags: [saas-linux-medium-amd64]
+  needs: [compile]
   script:
-    - sbt test
+    # The renderer checks are plain main classes (no test-framework dependency),
+    # so `sbt test` alone would find nothing and pass. Name them.
+    - sbt test 'Test/runMain com.pastestack.surface.MarqueeRenderingChecks' 'Test/runMain com.pastestack.surface.IncludesRenderingChecks' 'Test/runMain com.pastestack.surface.ImageSequenceRenderingChecks'
 
-# ---------------------------------------------------------------------------
-# Maven Publish
-# ---------------------------------------------------------------------------
-maven-publish:
-  extends:
-    - .tomshley-sbt-runtime
-    - .flow-artifact-publish
-  stage: deploy
+# The recipe resolves the artifact policy, enforces the tag/VERSION guard, and
+# exports TOMSHLEY_CICD_BUILD_REVISION for build.sbt's version. The registry
+# project is build.sbt's decision, not a second value here.
+#
+# The recipe publishes one coordinate — the pinnable {ref-slug}-{sha}. A consumer
+# cannot track a branch by a version that changes every pipeline, so the rolling
+# {ref-slug}-latest coordinate is published after it, the way the house JVM
+# publishers do. On a tag both revisions are empty and the clean version publishes
+# once, so the second pass is skipped.
+publish:
+  extends: [.tomshley-cicd-publish-sbt]
+  needs: [compile, test]
+  before_script:
+    # The recipe script resolves the publish policy in its own process, so the
+    # job shell needs it too before it can decide whether a rolling pass applies.
+    - !reference [.tomshley-cicd-recipe-env, before_script]
+    - !reference [.before-artifact-tags, before_script]
   script:
-    - sbt publish
+    - bash "${TOMSHLEY_CICD_TOOLBOX_ROOT}/publish/sbt.sh" sbt publish
+    - |
+      if [ "${CICD_PUBLISH_ROLLING}" = "true" ]; then
+        TOMSHLEY_CICD_BUILD_REVISION="${CICD_PUBLISH_ROLLING_TAG}" sbt publish
+      fi
