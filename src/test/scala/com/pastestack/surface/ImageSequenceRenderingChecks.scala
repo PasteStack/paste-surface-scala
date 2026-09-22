@@ -43,6 +43,12 @@ object ImageSequenceRenderingChecks {
     assert(plain.contains("""data-sequence-progress-id="main""""), plain)
     assert(plain.contains("""data-sequence-range="top-exit""""), plain)
     assert(plain.contains("""data-sequence-preload="auto""""), plain)
+    // Fit and the scroll window always carry the effective value; the model
+    // defaults are the Element's defaults, so an element omitting them means
+    // the same thing.
+    assert(plain.contains("""data-sequence-fit="cover""""), plain)
+    assert(plain.contains("""data-sequence-scroll-window-start="0.0""""), plain)
+    assert(plain.contains("""data-sequence-scroll-window-end="1.0""""), plain)
     // Absent configuration stays absent rather than rendering an empty attribute.
     assert(!plain.contains("data-sequence-scroll-from"), plain)
     assert(!plain.contains("data-sequence-scroll-to"), plain)
@@ -82,6 +88,15 @@ object ImageSequenceRenderingChecks {
     assert(intro.contains("data-sequence-intro-skip"), intro)
     assert(intro.contains("hidden"), intro)
 
+    val windowed = render(sequence().copy(
+      fit = "contain",
+      scrollWindowStart = 0.3,
+      scrollWindowEnd = 0.65
+    ))
+    assert(windowed.contains("""data-sequence-fit="contain""""), windowed)
+    assert(windowed.contains("""data-sequence-scroll-window-start="0.3""""), windowed)
+    assert(windowed.contains("""data-sequence-scroll-window-end="0.65""""), windowed)
+
     // Model strings are escaped, never turned into new attributes.
     val escaped = render(sequence().copy(cssClass = """dark" onload="alert(1)"""))
     assert(!escaped.contains(""" onload=""""), escaped)
@@ -102,6 +117,13 @@ object ImageSequenceRenderingChecks {
     rejects(base.copy(scrollFrom = Some(0)))
     rejects(base.copy(scrollTo = Some(60)))
     rejects(base.copy(scrollFrom = Some(-1), scrollTo = Some(60)))
+    rejects(base.copy(fit = "fill"))
+    rejects(base.copy(scrollWindowStart = -0.1))
+    rejects(base.copy(scrollWindowStart = 1.1))
+    rejects(base.copy(scrollWindowEnd = -0.5))
+    rejects(base.copy(scrollWindowEnd = 1.5))
+    rejects(base.copy(scrollWindowStart = 0.5, scrollWindowEnd = 0.5))
+    rejects(base.copy(scrollWindowStart = 0.6, scrollWindowEnd = 0.4))
     rejects(base.copy(posterSources = Seq(posters.head, posters.head)))
     rejects(base.copy(posterSources = posters :+ ImageSequencePoster(480, 270, "/dup.webp", "/dupf.webp")))
     rejects(base.copy(posterSources = Seq(

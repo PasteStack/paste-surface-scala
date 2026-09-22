@@ -11,6 +11,9 @@
      data-sequence-range="@sequence.range"
      data-sequence-preload="@sequence.preload"
      data-sequence-priority="@sequence.priority"
+     data-sequence-fit="@sequence.fit"
+     data-sequence-scroll-window-start="@sequence.scrollWindowStart"
+     data-sequence-scroll-window-end="@sequence.scrollWindowEnd"
      @if(sequence.scrollFrom.nonEmpty) { data-sequence-scroll-from="@sequence.scrollFrom.get" }
      @if(sequence.scrollTo.nonEmpty) { data-sequence-scroll-to="@sequence.scrollTo.get" }
      @sequence.intro.map { intro =>
