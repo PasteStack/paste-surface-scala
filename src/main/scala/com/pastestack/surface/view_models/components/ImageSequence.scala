@@ -15,7 +15,10 @@ final case class ImageSequence(
   posterSources: Seq[ImageSequencePoster] = Seq.empty,
   posterSizes: String = "100vw",
   scrollFrom: Option[Int] = None,
-  scrollTo: Option[Int] = None
+  scrollTo: Option[Int] = None,
+  fit: String = "cover",
+  scrollWindowStart: Double = 0.0,
+  scrollWindowEnd: Double = 1.0
 ) {
   private def requiredUrl(value: String, field: String): Unit =
     require(Option(value).exists(_.trim.nonEmpty), s"ImageSequence $field must not be blank")
@@ -31,6 +34,12 @@ final case class ImageSequence(
   require(scrollFrom.forall(_ >= 0), "ImageSequence scrollFrom must be nonnegative")
   require(scrollTo.forall(_ >= 0), "ImageSequence scrollTo must be nonnegative")
   require(scrollFrom.isEmpty == scrollTo.isEmpty, "ImageSequence scroll endpoints must be provided together")
+  // The Element enforces the same contract at bind: an unknown fit throws, as
+  // does a window whose end does not exceed its start.
+  require(fit == "cover" || fit == "contain", "ImageSequence fit must be cover or contain")
+  require(scrollWindowStart >= 0.0 && scrollWindowStart <= 1.0, "ImageSequence scrollWindowStart must be within 0 and 1")
+  require(scrollWindowEnd >= 0.0 && scrollWindowEnd <= 1.0, "ImageSequence scrollWindowEnd must be within 0 and 1")
+  require(scrollWindowEnd > scrollWindowStart, "ImageSequence scrollWindowEnd must exceed scrollWindowStart")
   progressTargetId.foreach { id =>
     require(id.trim.nonEmpty, "ImageSequence progressTargetId must not be blank")
     require(!id.contains("#") && !id.exists(_.isWhitespace), "ImageSequence progressTargetId must be a plain HTML ID")
