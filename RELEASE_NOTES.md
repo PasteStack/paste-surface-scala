@@ -1,3 +1,28 @@
+# paste-surface-scala v0.2.1
+
+**Date:** 2026-09-22
+
+## Added
+
+- `ImageSequence.fit`, `ImageSequence.scrollWindowStart` and
+  `ImageSequence.scrollWindowEnd`, rendered as `data-sequence-fit`,
+  `data-sequence-scroll-window-start` and `data-sequence-scroll-window-end`.
+  The Element already read all three, so a caller using the renderer had no way
+  to choose how frames fit their box or to confine playback to part of the
+  target's travel without scripting the rendered element — which the component
+  contract forbids. The fields are appended to the model, leaving existing
+  positional construction unaffected, and their defaults are the Element's
+  defaults, so rendered markup and hand-written markup mean the same thing.
+  Construction rejects a fit that is neither `cover` nor `contain`, a window
+  bound outside 0 to 1, and an end that does not exceed its start.
+
+## Changed
+
+- The image sequence renderer always emits the fit and scroll window
+  attributes, carrying the effective value, instead of omitting them at their
+  defaults. Rendered behaviour is unchanged for existing callers, because those
+  values are the ones the Element already applied.
+
 # paste-surface-scala v0.2.0
 
 **Date:** 2026-09-22
