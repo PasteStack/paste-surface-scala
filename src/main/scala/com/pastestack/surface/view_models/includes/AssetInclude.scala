@@ -15,18 +15,29 @@ case class JSInclude(
   pasteIncludes: Seq[String] = Seq.empty,
   async: Boolean = false,
   defer: Boolean = true,
-  // JAM mode: specify module names, resolved via cacheable path
-  // URL pattern: /paste/{version}/{checksum}/{modules}.js
+  // JAM mode: module names resolved by the JAM server from one cacheable path
   jamModules: Seq[String] = Seq.empty,
+  // Immutable cache segment for the group: the asset build version, or the
+  // manifest's group timestamp when the caller reads one.
   jamVersion: String = "",
-  jamChecksum: String = ""
+  // Per-module versions from the asset manifest, when the caller has one. The
+  // server strips them; they exist so one changed module invalidates the path.
+  jamModuleVersions: Map[String, String] = Map.empty
 ) extends AssetInclude {
   def useJam: Boolean = jamModules.nonEmpty
-  
-  // Cacheable URL: /paste/2025.02.02/abc123/paste.dom,paste.ui.heroscroll.js
+
+  /**
+   * Cacheable JAM path: /paste/{version}/{module+vN.0~...}{.min}.js
+   *
+   * The server reads everything after the version segment as the module list, so
+   * this path carries exactly one version segment. Modules are separated by `~`
+   * and sorted, so the same set always yields the same cacheable path.
+   */
   def jamUrl: String = {
-    val modules = jamModules.sorted.mkString(",")
+    val modules = jamModules.sorted
+      .map(module => jamModuleVersions.get(module).fold(module)(version => s"$module+v$version"))
+      .mkString("~")
     val suffix = if (debugMode) ".js" else ".min.js"
-    s"/paste/$jamVersion/$jamChecksum/$modules$suffix"
+    s"/paste/$jamVersion/$modules$suffix"
   }
 }

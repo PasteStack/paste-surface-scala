@@ -11,36 +11,39 @@ object IncludesFactory {
   
   case class AssetConfig(
     version: String,
-    checksum: String,
     debugMode: Boolean = false
   )
   
   // Standard paste modules
   val PASTE_CORE = Seq("paste", "paste.dom", "paste.event", "paste.util")
   val PASTE_UI = Seq("paste.ui.heroscroll", "paste.ui.stickynav", "paste.ui.smoothscroll")
-  val PASTE_FORMS = Seq("paste.ui.autogrow", "paste.ui.throttle")
+  val PASTE_FORMS = Seq("paste.ui.autogrow", "paste.ui.utilities.throttle")
   
   /**
    * Create JS include for paste core + UI modules via JAM.
    */
-  def forPasteJam(config: AssetConfig, additionalModules: Seq[String] = Seq.empty): JSInclude = {
+  def forPasteJam(
+    config: AssetConfig,
+    additionalModules: Seq[String] = Seq.empty,
+    moduleVersions: Map[String, String] = Map.empty
+  ): JSInclude = {
     JSInclude(
       debugMode = config.debugMode,
       jamModules = PASTE_CORE ++ PASTE_UI ++ additionalModules,
       jamVersion = config.version,
-      jamChecksum = config.checksum
+      jamModuleVersions = moduleVersions
     )
   }
   
   /**
    * Create JS include for forms (autogrow, validation).
    */
-  def forForms(config: AssetConfig): JSInclude = {
+  def forForms(config: AssetConfig, moduleVersions: Map[String, String] = Map.empty): JSInclude = {
     JSInclude(
       debugMode = config.debugMode,
       jamModules = PASTE_CORE ++ PASTE_FORMS,
       jamVersion = config.version,
-      jamChecksum = config.checksum
+      jamModuleVersions = moduleVersions
     )
   }
   
