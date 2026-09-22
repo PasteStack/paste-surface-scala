@@ -1,13 +1,39 @@
-@import com.pastestack.surface.view_models.components.{SectionNav, NavItem}
+@import com.pastestack.surface.view_models.components.SectionNav
 
 @(nav: SectionNav)
 
-<nav class="paste-ui-section-nav@if(nav.cssClass.nonEmpty){ @nav.cssClass}"@if(nav.sticky){ data-paste-sticky-nav}@if(nav.stickyMinWidth > 0){ data-sticky-min-width="@nav.stickyMinWidth"}@if(nav.scrollspy){ data-paste-scrollspy}@if(nav.scrollspyMinWidth > 0){ data-spy-min-width="@nav.scrollspyMinWidth"}>
+@* The <nav> attribute list is duplicated across both branches on purpose — the disclosure branch adds its own children. Keep the two opening tags in sync when adding or changing attributes. *@@if(nav.disclosure.isEmpty) {
+<nav class="paste-ui-section-nav@if(nav.cssClass.nonEmpty){ @nav.cssClass}"@if(nav.sticky){ data-paste-sticky-nav}@if(nav.stickyMinWidth > 0){ data-sticky-min-width="@nav.stickyMinWidth"}@if(nav.scrollspy){ data-paste-scrollspy}@if(nav.scrollspyMinWidth > 0){ data-spy-min-width="@nav.scrollspyMinWidth"}@if(nav.scrollspy && nav.scrollspyTouch){ data-spy-touch}@nav.ariaLabel.map { label => aria-label="@label"}>
     <ul class="paste-ui-section-nav-items">
         @for(item <- nav.items) {
         <li class="paste-ui-section-nav-item@if(item.cssClass.nonEmpty){ @item.cssClass}">
-            <a href="#@item.targetId">@item.label</a>
+            <a class="paste-ui-section-nav-link" href="#@item.targetId">@item.label</a>
         </li>
         }
     </ul>
+</nav>} else {
+@nav.disclosure.map { d =>
+<nav class="paste-ui-section-nav paste-ui-section-nav-disclosure@if(nav.cssClass.nonEmpty){ @nav.cssClass}"@if(nav.sticky){ data-paste-sticky-nav}@if(nav.stickyMinWidth > 0){ data-sticky-min-width="@nav.stickyMinWidth"}@if(nav.scrollspy){ data-paste-scrollspy}@if(nav.scrollspyMinWidth > 0){ data-spy-min-width="@nav.scrollspyMinWidth"}@if(nav.scrollspy && nav.scrollspyTouch){ data-spy-touch}@nav.ariaLabel.map { label => aria-label="@label"}>
+    <div id="@d.panelId" class="paste-ui-section-nav-panel" tabindex="-1">
+        <ul class="paste-ui-section-nav-items">
+            @for(item <- nav.items) {
+            <li class="paste-ui-section-nav-item@if(item.cssClass.nonEmpty){ @item.cssClass}">
+                <a class="paste-ui-section-nav-link" href="#@item.targetId">@item.label</a>
+            </li>
+            }
+        </ul>
+        @d.footer.map { footer =>
+        @footer
+        }
+    </div>
+    <a id="@{d.panelId}-toggle" class="paste-ui-section-nav-toggle paste-ui-section-nav-open" href="#@d.panelId" aria-controls="@d.panelId">
+        <span class="paste-ui-section-nav-toggle-icon" aria-hidden="true"></span>
+        <span class="paste-ui-visually-hidden">@d.label</span>
+    </a>
+    <a class="paste-ui-section-nav-toggle paste-ui-section-nav-close" href="#@{d.panelId}-toggle" aria-controls="@d.panelId">
+        <span class="paste-ui-section-nav-toggle-icon" aria-hidden="true"></span>
+        <span class="paste-ui-visually-hidden">@d.closeLabel</span>
+    </a>
 </nav>
+    }
+}

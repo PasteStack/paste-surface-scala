@@ -109,12 +109,29 @@ The Element keeps all originals in static flow without JavaScript, with reduced 
 paused, with insufficient repeat coverage, or with interactive content. See the Marquee contract
 in `paste-surface-spec/spec/view_models/components.md`.
 
+### Section navigation
+
+`SectionNav.disclosure` (`NavDisclosure`) renders the Elements disclosure
+contract instead of the plain list: the panel carries `panelId`, the open link
+targets `#panelId`, and the close link targets the derived `#<panelId>-toggle`
+id. Disclosure state is the URL fragment — the `paste.ui.sectionnav`
+stylesheet owns presentation and no JavaScript module is involved. `panelId`
+and the derived `#<panelId>-toggle` id must both be unique per page.
+
+```scala
+@paste.surface.components.html.sectionNav(SectionNav(
+  items = Seq(NavItem("Overview", "overview"), NavItem("Details", "details")),
+  disclosure = Some(NavDisclosure(panelId = "site-sections"))
+))
+```
+
 Renderer checks use no additional test dependencies:
 
 ```sh
 sbt 'Test/runMain com.pastestack.surface.MarqueeRenderingChecks'
 sbt 'Test/runMain com.pastestack.surface.IncludesRenderingChecks'
 sbt 'Test/runMain com.pastestack.surface.ImageSequenceRenderingChecks'
+sbt 'Test/runMain com.pastestack.surface.SectionNavRenderingChecks'
 ```
 
 They are plain main classes, so `sbt test` does not discover them; CI names them in

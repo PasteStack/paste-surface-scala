@@ -34,6 +34,9 @@ package object surface {
   type NavItem = view_models.components.NavItem
   val NavItem = view_models.components.NavItem
   
+  type NavDisclosure = view_models.components.NavDisclosure
+  val NavDisclosure = view_models.components.NavDisclosure
+
   type SectionNav = view_models.components.SectionNav
   val SectionNav = view_models.components.SectionNav
 

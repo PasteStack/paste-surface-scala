@@ -17,6 +17,11 @@
   configuration the scroll-driven Element reads, with a `Hero` that hands its
   media to the sequence instead of emitting parallax and the legacy image element.
 - `Logo`, `Carousel`, and `SectionNav` scrollspy attributes.
+- `SectionNav.disclosure` (`NavDisclosure`): renders a `:target`-driven
+  disclosure panel — an opener targeting the panel id, a close link
+  targeting the derived `#<panelId>-toggle`, optional footer content and
+  accessible labels — with no inline script. Item anchors carry
+  `paste-ui-section-nav-link` as a styling hook.
 - `IncludesRenderingChecks`, which pins the JAM path shape.
 
 ## Changed
