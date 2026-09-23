@@ -1,0 +1,22 @@
+@import com.pastestack.surface.view_models.components.formfield.Form
+
+@(form: Form)(content: Html)
+
+<form class="paste-ui-form@if(form.cssClass.nonEmpty){ @form.cssClass}"
+      @form.id.map { i => id="@i" }
+      action="@form.action"
+      method="@form.method.wireName"
+      enctype="@form.enctype.wireName"
+      accept-charset="utf-8"
+      @if(form.backgroundSubmit){ data-paste-form }
+      @for((k, v) <- form.dataAttributes) { data-@k="@v" }
+>
+    @if(form.errors.nonEmpty) {
+    <ul class="paste-ui-form-errors" role="alert">
+        @for(error <- form.errors) {
+        <li>@error</li>
+        }
+    </ul>
+    }
+    @content
+</form>
