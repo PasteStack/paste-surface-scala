@@ -64,7 +64,21 @@ package object surface {
   
   type Hidden = view_models.components.formfield.Hidden
   val Hidden = view_models.components.formfield.Hidden
-  
+
+  type Form = view_models.components.formfield.Form
+  val Form = view_models.components.formfield.Form
+
+  type FormMethod = view_models.components.formfield.FormMethod
+  val FormMethod = view_models.components.formfield.FormMethod
+
+  type FormEnctype = view_models.components.formfield.FormEnctype
+  val FormEnctype = view_models.components.formfield.FormEnctype
+
+  val DataAttributeName = view_models.components.formfield.DataAttributeName
+
+  type IoReplyFragmentTarget = view_models.components.IoReplyFragmentTarget
+  val IoReplyFragmentTarget = view_models.components.IoReplyFragmentTarget
+
   // Includes (aggregates JAM calls for page rendering)
   type CSSInclude = view_models.includes.CSSInclude
   val CSSInclude = view_models.includes.CSSInclude
@@ -92,7 +106,30 @@ package object surface {
   val HomePageViewModel = presenters.HomePageViewModel
   
   type HomePagePresenter = presenters.HomePagePresenter
-  
+
+  // === Rendering (Page/IoReplyFragment/Json from one view model) ===
+  type Rendering = rendering.Rendering
+  val Rendering = rendering.Rendering
+
+  type ViewModelJson[A] = rendering.ViewModelJson[A]
+
+  type Rendered = rendering.Rendered
+  val Rendered = rendering.Rendered
+
+  type Presentation[A] = rendering.Presentation[A]
+  val Presentation = rendering.Presentation
+
+  type IoReplyFragmentEnvelopeErrorType = rendering.IoReplyFragmentEnvelopeErrorType
+  val IoReplyFragmentEnvelopeErrorType = rendering.IoReplyFragmentEnvelopeErrorType
+
+  type IoReplyFragmentEnvelopeError = rendering.IoReplyFragmentEnvelopeError
+  val IoReplyFragmentEnvelopeError = rendering.IoReplyFragmentEnvelopeError
+
+  type IoReplyFragmentMarkup = rendering.IoReplyFragmentMarkup
+  val IoReplyFragmentMarkup = rendering.IoReplyFragmentMarkup
+
+  val IoReplyFragmentEnvelope = rendering.IoReplyFragmentEnvelope
+
   // === Config (load from resources) ===
   type SurfaceConfig = config.SurfaceConfig
   val SurfaceConfig = config.SurfaceConfig
