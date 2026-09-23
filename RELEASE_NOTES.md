@@ -1,3 +1,32 @@
+# paste-surface-scala v0.3.0
+
+**Date:** 2026-09-23
+
+## Added
+
+- `Form` view model and template: typed `FormMethod` and `FormEnctype`, an
+  optional `id`, form-level `errors` rendered as a `role="alert"` list,
+  `cssClass`, `dataAttributes`, and `backgroundSubmit`, which emits
+  `data-paste-form` for the `paste.ui.form` Element. A blank `action` is
+  rejected at construction.
+- `IoReplyFragmentTarget` view model and template: the named wrapper an IO
+  reply fragment lands in.
+- `Presentation`, `Rendering`, `Rendered` and `ViewModelJson`: one view model
+  renders as a page, an IO reply fragment, or JSON. `Rendering.select` picks
+  JSON when `Accept` lists `application/json` without `text/html` (a `q=0`
+  range is not acceptable), else the IO reply fragment on
+  `X-Requested-With: XMLHttpRequest`, else the page.
+- `IoReplyFragmentEnvelope` success and failure encoders, with
+  `IoReplyFragmentMarkup`, `IoReplyFragmentEnvelopeError` and
+  `IoReplyFragmentEnvelopeErrorType`.
+
+## Changed
+
+- `Input`, `Button` and `Textarea` reject `dataAttributes` names outside
+  `[a-z0-9][a-z0-9._-]*` at construction. Such a name was previously written
+  into the element's attribute list as given.
+- The pipeline runs the SectionNav, Form and Rendering checks.
+
 # paste-surface-scala v0.2.1
 
 **Date:** 2026-09-22
