@@ -19,7 +19,9 @@ case class Input(
   autocomplete: Option[String] = Option.empty,
   errors: Seq[String] = Seq.empty,
   dataAttributes: Map[String, String] = Map.empty
-) extends FormField
+) extends FormField {
+  DataAttributeName.requireValid(dataAttributes)
+}
 
 case class Button(
   name: String,
@@ -27,7 +29,9 @@ case class Button(
   buttonType: String = "submit",
   disabled: Boolean = false,
   dataAttributes: Map[String, String] = Map.empty
-) extends FormField
+) extends FormField {
+  DataAttributeName.requireValid(dataAttributes)
+}
 
 case class Textarea(
   name: String,
@@ -42,7 +46,9 @@ case class Textarea(
   maxLength: Option[Int] = Option.empty,
   errors: Seq[String] = Seq.empty,
   dataAttributes: Map[String, String] = Map.empty
-) extends FormField
+) extends FormField {
+  DataAttributeName.requireValid(dataAttributes)
+}
 
 case class Hidden(
   name: String,
