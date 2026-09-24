@@ -193,10 +193,40 @@ sbt 'Test/runMain com.pastestack.surface.ImageSequenceRenderingChecks'
 sbt 'Test/runMain com.pastestack.surface.SectionNavRenderingChecks'
 sbt 'Test/runMain com.pastestack.surface.FormRenderingChecks'
 sbt 'Test/runMain com.pastestack.surface.RenderingChecks'
+sbt 'pekko/Test/runMain com.pastestack.surface.pekko.RenderingDirectivesChecks'
 ```
 
 They are plain main classes, so `sbt test` does not discover them; CI names them in
 the same way.
+
+### Pekko HTTP
+
+`paste-surface-pekko` carries the Pekko HTTP binding over `Presentation`: the
+`rendering` directive selects per `Rendering.select`, and `completeRendered`
+answers one status for the selected rendering with `Vary: X-Requested-With,
+Accept` always set. A JSON request without an encoder answers `406`.
+`renderedResponse` produces the same `HttpResponse` inside `complete(...)` for
+rejection handlers.
+
+```scala
+libraryDependencies += "com.pastestack" %% "paste-surface-pekko" % "<version>"
+```
+
+```scala
+import com.pastestack.surface.pekko.RenderingDirectives.*
+import org.apache.pekko.http.scaladsl.server.Directives.*
+
+val route =
+  path("feedback" / Segment) { requestId =>
+    rendering { r =>
+      completeRendered(StatusCodes.OK, presentation, model, r)
+    }
+  }
+```
+
+Pekko is a `Provided` dependency: the host application brings its own
+pekko-http, pekko-stream and pekko-actor-typed, so the binding never forces a
+version on it.
 
 ## Package Structure
 
@@ -237,6 +267,9 @@ paste.surface (Twirl templates)
 └── includes/
     ├── css.scala.html
     └── js.scala.html
+
+com.pastestack.surface.pekko (paste-surface-pekko)
+└── RenderingDirectives
 ```
 
 ## License

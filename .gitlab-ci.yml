@@ -39,7 +39,7 @@ test:
   script:
     # The renderer checks are plain main classes (no test-framework dependency),
     # so `sbt test` alone would find nothing and pass. Name them.
-    - sbt test 'Test/runMain com.pastestack.surface.MarqueeRenderingChecks' 'Test/runMain com.pastestack.surface.IncludesRenderingChecks' 'Test/runMain com.pastestack.surface.ImageSequenceRenderingChecks' 'Test/runMain com.pastestack.surface.SectionNavRenderingChecks' 'Test/runMain com.pastestack.surface.FormRenderingChecks' 'Test/runMain com.pastestack.surface.RenderingChecks'
+    - sbt test 'Test/runMain com.pastestack.surface.MarqueeRenderingChecks' 'Test/runMain com.pastestack.surface.IncludesRenderingChecks' 'Test/runMain com.pastestack.surface.ImageSequenceRenderingChecks' 'Test/runMain com.pastestack.surface.SectionNavRenderingChecks' 'Test/runMain com.pastestack.surface.FormRenderingChecks' 'Test/runMain com.pastestack.surface.RenderingChecks' 'pekko/Test/runMain com.pastestack.surface.pekko.RenderingDirectivesChecks'
 
 # The recipe resolves the artifact policy, enforces the tag/VERSION guard, and
 # exports TOMSHLEY_CICD_BUILD_REVISION for build.sbt's version. The registry
