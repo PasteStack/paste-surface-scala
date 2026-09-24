@@ -1,3 +1,21 @@
+# paste-surface-scala v0.4.0
+
+**Date:** 2026-09-24
+
+## Added
+
+- `paste-surface-pekko`, a second artifact carrying the Pekko HTTP binding of
+  the rendering contract: `RenderingDirectives.rendering` selects page, IO
+  reply fragment or JSON from `X-Requested-With` and `Accept` per
+  `Rendering.select`; `completeRendered` answers one status for the selected
+  rendering with `Vary: X-Requested-With, Accept` always set and `406` when no
+  JSON encoder is configured; `renderedResponse` builds the same
+  `HttpResponse` for use inside `complete(...)` and rejection handlers. Pekko
+  HTTP, pekko-stream and pekko-actor-typed are `Provided`, so the host
+  application supplies its own version. The root project aggregates the new
+  module, so the published coordinates are `paste-surface-scala` and
+  `paste-surface-pekko` at the same version.
+
 # paste-surface-scala v0.3.0
 
 **Date:** 2026-09-23
