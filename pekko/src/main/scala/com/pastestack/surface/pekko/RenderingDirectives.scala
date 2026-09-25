@@ -6,6 +6,8 @@ import org.apache.pekko.http.scaladsl.model.{ContentType, ContentTypes, HttpEnti
 import org.apache.pekko.http.scaladsl.server.Directives.*
 import org.apache.pekko.http.scaladsl.server.{Directive1, Route}
 
+import scala.concurrent.Future
+
 trait RenderingDirectives {
 
   /** The rendering a request selects, per Rendering.select, from X-Requested-With and Accept. */
@@ -13,7 +15,12 @@ trait RenderingDirectives {
     (optionalHeaderValueByName("X-Requested-With") & optionalHeaderValueByName("Accept"))
       .tmap { case (xRequestedWith, accept) => Rendering.select(xRequestedWith, accept) }
 
-  /** One outcome rendered for the selected rendering; always carries Vary: X-Requested-With, Accept. */
+  /** One outcome rendered for the selected rendering; always carries Vary: X-Requested-With, Accept.
+    *
+    * Renders synchronously: JAM includes reach the assetgraph (native calls and
+    * file reads), so callers must run this off the request dispatcher —
+    * `completeRendered` does so on the default-blocking-io dispatcher.
+    */
   def renderedResponse[A](status: StatusCode, presentation: Presentation[A], model: A, rendering: Rendering): HttpResponse =
     presentation.render(model, rendering) match {
       case Some(rendered) =>
@@ -29,8 +36,13 @@ trait RenderingDirectives {
         )
     }
 
+  /** `renderedResponse` completed on the blocking-io dispatcher — rendering
+    * does native and filesystem work that must not occupy a request thread. */
   def completeRendered[A](status: StatusCode, presentation: Presentation[A], model: A, rendering: Rendering): Route =
-    complete(renderedResponse(status, presentation, model, rendering))
+    extractActorSystem { system =>
+      val renderingIo = system.dispatchers.lookup("pekko.actor.default-blocking-io-dispatcher")
+      complete(Future(renderedResponse(status, presentation, model, rendering))(renderingIo))
+    }
 
   private def renderedContentType(rendered: Rendered): ContentType.NonBinary =
     rendered.contentType match {

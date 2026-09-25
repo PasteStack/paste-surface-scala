@@ -1,15 +1,23 @@
 @import com.pastestack.surface.view_models.page.PageMeta
 @import com.pastestack.surface.view_models.includes.CSSInclude
 @import com.pastestack.surface.view_models.includes.JSInclude
+@import com.pastestack.assetgraph.PastePage
 
 @**
  * Base layout with JAM include stubs.
- * 
- * CSS renders in <head>, JS renders at bottom of <body>.
+ *
+ * CSS renders in <head>, JS renders at bottom of <body>. JAM-mode includes
+ * record their jam events on `page` — the per-render paste-assetgraph page
+ * object the caller's app-owned Paste supplies — and emit its dumps. A
+ * repeated dump of one type skips the modules that type's earlier dumps
+ * already delivered; CSS and JS track delivery independently, so the two
+ * include calls compose no cross-type suppression.
  *
  * @param meta Page metadata (title, description, etc.)
  * @param cssInclude CSS includes for head
  * @param jsInclude JS includes for bottom of body
+ * @param page The per-render paste-assetgraph page object; required when
+ *   either include is in JAM mode, ignored by direct includes
  * @param headContent Additional head content (fonts, meta tags)
  * @param headerContent Header/nav content
  * @param mainContent Main page content
@@ -17,7 +25,7 @@
  * @param footerScripts Additional scripts after JAM includes
  *@
 
-@(meta: PageMeta, cssInclude: CSSInclude = CSSInclude(), jsInclude: JSInclude = JSInclude())(headContent: Html = Html(""))(headerContent: Html = Html(""))(mainContent: Html)(footerContent: Html = Html(""))(footerScripts: Html = Html(""))
+@(meta: PageMeta, cssInclude: CSSInclude = CSSInclude(), jsInclude: JSInclude = JSInclude(), page: Option[PastePage] = None)(headContent: Html = Html(""))(headerContent: Html = Html(""))(mainContent: Html)(footerContent: Html = Html(""))(footerScripts: Html = Html(""))
 
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +63,7 @@
     @headContent
     
     @* === CSS INCLUDES === *@
-    @paste.surface.includes.html.css(cssInclude)
+    @paste.surface.includes.html.css(cssInclude, page)
 </head>
 <body>
     @if(headerContent.body.nonEmpty) {
@@ -75,7 +83,7 @@
     }
     
     @* === JS INCLUDES === *@
-    @paste.surface.includes.html.js(jsInclude)
+    @paste.surface.includes.html.js(jsInclude, page)
     
     @* Additional footer scripts *@
     @footerScripts

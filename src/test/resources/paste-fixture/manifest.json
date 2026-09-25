@@ -1,0 +1,39 @@
+{
+  "version": "42",
+  "generated": "2026-01-01T00:00:00Z",
+  "modules": {
+    "paste": "js/paste.js",
+    "app": "js/app.js",
+    "site.theme": "css/theme.css"
+  },
+  "assets": {
+    "js/paste.js": {
+      "source": "src/paste.js",
+      "output": "/js/paste.h.v1.min.js",
+      "hash": "h",
+      "version": 1,
+      "timestamp": "2026-01-01T00:00:00Z",
+      "dependencies": [],
+      "history": []
+    },
+    "js/app.js": {
+      "source": "src/app.js",
+      "output": "/js/app.h.v1.min.js",
+      "hash": "h",
+      "version": 1,
+      "timestamp": "2026-01-01T00:00:00Z",
+      "dependencies": ["paste"],
+      "history": []
+    },
+    "css/theme.css": {
+      "source": "src/theme.scss",
+      "output": "/css/theme.h.v1.min.css",
+      "hash": "h",
+      "version": 1,
+      "timestamp": "2026-01-01T00:00:00Z",
+      "dependencies": [],
+      "history": []
+    }
+  },
+  "sorted_deps": {}
+}

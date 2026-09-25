@@ -1,43 +1,32 @@
 package com.pastestack.surface.view_models.includes
 
 trait AssetInclude {
+  // Direct mode only: source files instead of minified. JAM-mode markup is
+  // decided by the paste-assetgraph build, not by the include.
   def debugMode: Boolean
   def pasteIncludes: Seq[String]
+  // Non-empty selects JAM mode: the include records a jam event on the
+  // per-render paste-assetgraph page and emits that page's dump.
+  def jamModules: Seq[String]
+  def jamInline: Boolean
+  final def useJam: Boolean = jamModules.nonEmpty
 }
 
 case class CSSInclude(
   debugMode: Boolean = false,
-  pasteIncludes: Seq[String] = Seq.empty
+  pasteIncludes: Seq[String] = Seq.empty,
+  jamModules: Seq[String] = Seq.empty,
+  jamInline: Boolean = false,
+  jamMedia: Option[String] = None
 ) extends AssetInclude
 
 case class JSInclude(
   debugMode: Boolean = false,
   pasteIncludes: Seq[String] = Seq.empty,
+  // Direct mode only: JAM loading is decided by jamSync, not async/defer.
   async: Boolean = false,
   defer: Boolean = true,
-  // JAM mode: module names resolved by the JAM server from one cacheable path
   jamModules: Seq[String] = Seq.empty,
-  // Immutable cache segment for the group: the asset build version, or the
-  // manifest's group timestamp when the caller reads one.
-  jamVersion: String = "",
-  // Per-module versions from the asset manifest, when the caller has one. The
-  // server strips them; they exist so one changed module invalidates the path.
-  jamModuleVersions: Map[String, String] = Map.empty
-) extends AssetInclude {
-  def useJam: Boolean = jamModules.nonEmpty
-
-  /**
-   * Cacheable JAM path: /paste/{version}/{module+vN.0~...}{.min}.js
-   *
-   * The server reads everything after the version segment as the module list, so
-   * this path carries exactly one version segment. Modules are separated by `~`
-   * and sorted, so the same set always yields the same cacheable path.
-   */
-  def jamUrl: String = {
-    val modules = jamModules.sorted
-      .map(module => jamModuleVersions.get(module).fold(module)(version => s"$module+v$version"))
-      .mkString("~")
-    val suffix = if (debugMode) ".js" else ".min.js"
-    s"/paste/$jamVersion/$modules$suffix"
-  }
-}
+  jamInline: Boolean = false,
+  jamSync: Boolean = false
+) extends AssetInclude

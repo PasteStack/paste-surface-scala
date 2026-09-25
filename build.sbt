@@ -5,6 +5,11 @@ lazy val projectOrgName = "com.pastestack"
 
 ThisBuild / versionScheme := Some("semver-spec")
 
+// The renderer checks load the paste-assetgraph native library through JNA in
+// the forked test JVM — an explicitly exported PASTE_ASSETGRAPH_LIB is
+// inherited, otherwise the runtime's bundled library is used.
+ThisBuild / Test / fork := true
+
 lazy val commonSettings = Seq(
   organization := projectOrgName,
   // The house Scala 3 line (magicroot's ProjectSettingDefinitions.Scala3).
@@ -46,7 +51,10 @@ lazy val `paste-surface-scala` = (project in file("."))
     ),
     libraryDependencies ++= Seq(
       "org.playframework.twirl" %% "twirl-api" % "2.0.1",
-      "com.typesafe" % "config" % "1.4.3"
+      "com.typesafe" % "config" % "1.4.3",
+      // The local coordinate is replaced by the CI-published coordinate before
+      // merge; its POM already declares the JNA the loader needs.
+      "com.pastestack" %% "paste-assetgraph-runtime" % "0.2.0-local"
     )
   )
   // Referenced by id rather than the lazy val: pekko depends on this project,
@@ -64,6 +72,9 @@ lazy val pekko = (project in file("pekko"))
     libraryDependencies ++= Seq(
       "org.apache.pekko" %% "pekko-http" % "1.3.0" % Provided,
       "org.apache.pekko" %% "pekko-stream" % "1.5.0" % Provided,
-      "org.apache.pekko" %% "pekko-actor-typed" % "1.5.0" % Provided
+      "org.apache.pekko" %% "pekko-actor-typed" % "1.5.0" % Provided,
+      "org.apache.pekko" %% "pekko-http-testkit" % "1.3.0" % Test,
+      "org.apache.pekko" %% "pekko-stream-testkit" % "1.5.0" % Test,
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test
     )
   )

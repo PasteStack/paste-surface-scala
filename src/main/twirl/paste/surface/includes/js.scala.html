@@ -1,23 +1,21 @@
-@import com.pastestack.surface.view_models.includes.JSInclude
+@import com.pastestack.surface.view_models.includes.{JSInclude, JamIncludes}
+@import com.pastestack.assetgraph.PastePage
 
 @**
- * JS Includes - Aggregates paste JAM calls for page rendering.
- * 
- * JAM mode: Single cacheable request for all modules
- *   /paste/{version}/{module+vN.0~...}.min.js
- * 
- * Direct mode: Individual script tags
+ * JS Includes - direct file script tags, or a JAM group the paste-assetgraph
+ * page renders. `page` is the per-render page object: ignored in direct mode,
+ * required in JAM mode. In JAM mode the emitted markup is the page's dump —
+ * the surface composes no URL.
  *@
 
-@(include: JSInclude)
+@(include: JSInclude, page: Option[PastePage] = None)
 
 @if(include.useJam) {
-@* JAM mode: single cacheable request, dependencies resolved server-side *@
-<script src="@include.jamUrl" type="text/javascript"@if(include.async){ async}@if(include.defer){ defer}></script>
+@JamIncludes.js(include, page)
 } else {
 @* Direct mode: individual file includes *@
 @for(path <- include.pasteIncludes) {
-@defining(if(include.debugMode) path else path.replaceAll("\\.js$", ".min.js")) { resolvedPath =>
+@defining(JamIncludes.directPath(path, "js", include.debugMode)) { resolvedPath =>
 <script src="@resolvedPath" type="text/javascript"@if(include.async){ async}@if(include.defer){ defer}></script>
 }
 }
