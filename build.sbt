@@ -52,9 +52,8 @@ lazy val `paste-surface-scala` = (project in file("."))
     libraryDependencies ++= Seq(
       "org.playframework.twirl" %% "twirl-api" % "2.0.1",
       "com.typesafe" % "config" % "1.4.3",
-      // The local coordinate is replaced by the CI-published coordinate before
-      // merge; its POM already declares the JNA the loader needs.
-      "com.pastestack" %% "paste-assetgraph-runtime" % "0.2.0-local"
+      // Its POM already declares the JNA the loader needs.
+      "com.pastestack" %% "paste-assetgraph-runtime" % "0.3.1"
     )
   )
   // Referenced by id rather than the lazy val: pekko depends on this project,
