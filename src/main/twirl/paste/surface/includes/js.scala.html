@@ -1,22 +1,15 @@
 @import com.pastestack.surface.view_models.includes.{JSInclude, JamIncludes}
-@import com.pastestack.assetgraph.PastePage
 
 @**
- * JS Includes - direct file script tags, or a JAM group the paste-assetgraph
- * page renders. `page` is the per-render page object: ignored in direct mode,
- * required in JAM mode. In JAM mode the emitted markup is the page's dump —
- * the surface composes no URL.
+ * JS Includes - direct file script tags. JAM markup is the per-render
+ * paste-assetgraph page's dump, emitted by the layout — not by an include.
  *@
 
-@(include: JSInclude, page: Option[PastePage] = None)
+@(include: JSInclude)
 
-@if(include.useJam) {
-@JamIncludes.js(include, page)
-} else {
 @* Direct mode: individual file includes *@
 @for(path <- include.pasteIncludes) {
 @defining(JamIncludes.directPath(path, "js", include.debugMode)) { resolvedPath =>
 <script src="@resolvedPath" type="text/javascript"@if(include.async){ async}@if(include.defer){ defer}></script>
-}
 }
 }

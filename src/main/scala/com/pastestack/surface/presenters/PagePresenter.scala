@@ -1,5 +1,6 @@
 package com.pastestack.surface.presenters
 
+import com.pastestack.assetgraph.Jam
 import com.pastestack.surface.rendering.ViewModelJson
 import com.pastestack.surface.view_models.page.PageMeta
 import com.pastestack.surface.view_models.components.Hero
@@ -44,7 +45,8 @@ trait PagePresenter[T] {
 case class PageViewModel(
   pageMeta: PageMeta,
   cssIncludes: CSSInclude,
-  jsIncludes: JSInclude
+  jsIncludes: JSInclude,
+  jam: Jam = Jam()
 )
 
 /**
@@ -55,7 +57,8 @@ case class HomePageViewModel(
   mainHero: Hero,
   sections: Seq[Hero],
   cssIncludes: CSSInclude,
-  jsIncludes: JSInclude
+  jsIncludes: JSInclude,
+  jam: Jam = Jam()
 )
 
 /**
@@ -83,7 +86,8 @@ class HomePagePresenter(
         HeroFactory.forSection("about")
       ),
       cssIncludes = IncludesFactory.forDirectCSS(Seq("/css/main.css"), assetConfig.debugMode),
-      jsIncludes = IncludesFactory.forPasteJam(customModules)
+      jsIncludes = JSInclude(),
+      jam = IncludesFactory.forPasteJam(customModules)
     )
   }
 }

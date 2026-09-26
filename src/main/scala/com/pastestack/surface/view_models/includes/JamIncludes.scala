@@ -1,29 +1,40 @@
 package com.pastestack.surface.view_models.includes
 
-import com.pastestack.assetgraph.PastePage
+import com.pastestack.assetgraph.{AssetType, Jam, PastePage}
 import play.twirl.api.Html
 
 /**
- * The only JAM logic in the surface: record the include's jam event on the
+ * The only JAM logic in the surface: record the page's jam event on the
  * per-render paste-assetgraph page and emit that page's dump for the asset
  * type, unescaped. The surface composes no URL, timestamp, version tag or
  * dependency list — the binary owns all of it. The page comes from the
- * caller's app-owned `Paste`; a JAM-mode include without one fails loudly
+ * caller's app-owned `Paste`; a non-empty jam without one fails loudly
  * rather than silently emitting no tag.
  */
 object JamIncludes {
 
-  def css(include: CSSInclude, page: Option[PastePage]): Html = {
-    val p = requirePage(page)
-    p.jam(css = include.jamModules, inline = include.jamInline, media = include.jamMedia)
-    Html(p.dumpCss())
-  }
+  /**
+   * Record the layout's jam event on the page. An empty jam records nothing;
+   * a non-empty one with no page throws rather than dropping the modules.
+   * Recording only — the markup comes from `dump`.
+   */
+  def record(jam: Jam, page: Option[PastePage]): Html =
+    if (jam.css.isEmpty && jam.js.isEmpty) Html("")
+    else {
+      val p = requirePage(page)
+      p.jam(
+        css = jam.css,
+        js = jam.js,
+        inline = jam.inline,
+        sync = jam.sync,
+        media = jam.media
+      )
+      Html("")
+    }
 
-  def js(include: JSInclude, page: Option[PastePage]): Html = {
-    val p = requirePage(page)
-    p.jam(js = include.jamModules, inline = include.jamInline, sync = include.jamSync)
-    Html(p.dumpJs())
-  }
+  /** Emit the page's dump for the asset type; no page means no markup. */
+  def dump(assetType: AssetType, page: Option[PastePage]): Html =
+    page.fold(Html(""))(p => Html(p.dump(assetType)))
 
   /**
    * Resolve a direct-mode path: the source path in debug, otherwise the
@@ -44,7 +55,7 @@ object JamIncludes {
   private def requirePage(page: Option[PastePage]): PastePage =
     page.getOrElse(
       throw new IllegalArgumentException(
-        "JAM-mode include has no paste-assetgraph page: pass the app's " +
+        "a non-empty jam has no paste-assetgraph page: pass the app's " +
           "per-render PastePage"
       )
     )

@@ -1,23 +1,24 @@
 @import com.pastestack.surface.view_models.page.PageMeta
 @import com.pastestack.surface.view_models.includes.CSSInclude
 @import com.pastestack.surface.view_models.includes.JSInclude
-@import com.pastestack.assetgraph.PastePage
+@import com.pastestack.surface.view_models.includes.JamIncludes
+@import com.pastestack.assetgraph.{AssetType, Jam, PastePage}
 
 @**
  * Base layout with JAM include stubs.
  *
- * CSS renders in <head>, JS renders at bottom of <body>. JAM-mode includes
- * record their jam events on `page` — the per-render paste-assetgraph page
- * object the caller's app-owned Paste supplies — and emit its dumps. A
- * repeated dump of one type skips the modules that type's earlier dumps
- * already delivered; CSS and JS track delivery independently, so the two
- * include calls compose no cross-type suppression.
+ * The layout records `jam` on `page` — the per-render paste-assetgraph page
+ * object the caller's app-owned Paste supplies — then dumps CSS in <head>
+ * and JS at bottom of <body>. A repeated dump of one type skips the modules
+ * that type's earlier dumps already delivered; CSS and JS track delivery
+ * independently, so the two dumps compose no cross-type suppression.
  *
  * @param meta Page metadata (title, description, etc.)
- * @param cssInclude CSS includes for head
- * @param jsInclude JS includes for bottom of body
+ * @param cssInclude Direct CSS file includes for head
+ * @param jsInclude Direct JS file includes for bottom of body
  * @param page The per-render paste-assetgraph page object; required when
- *   either include is in JAM mode, ignored by direct includes
+ *   `jam` is non-empty, ignored by direct includes
+ * @param jam The page's jam event — JAM module names only
  * @param headContent Additional head content (fonts, meta tags)
  * @param headerContent Header/nav content
  * @param mainContent Main page content
@@ -25,7 +26,7 @@
  * @param footerScripts Additional scripts after JAM includes
  *@
 
-@(meta: PageMeta, cssInclude: CSSInclude = CSSInclude(), jsInclude: JSInclude = JSInclude(), page: Option[PastePage] = None)(headContent: Html = Html(""))(headerContent: Html = Html(""))(mainContent: Html)(footerContent: Html = Html(""))(footerScripts: Html = Html(""))
+@(meta: PageMeta, cssInclude: CSSInclude = CSSInclude(), jsInclude: JSInclude = JSInclude(), page: Option[PastePage] = None, jam: Jam = Jam())(headContent: Html = Html(""))(headerContent: Html = Html(""))(mainContent: Html)(footerContent: Html = Html(""))(footerScripts: Html = Html(""))
 
 <!DOCTYPE html>
 <html lang="en">
@@ -33,9 +34,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
+
     <title>@meta.title@if(meta.siteName.nonEmpty){ | @meta.siteName}</title>
-    
+
     @if(meta.description.nonEmpty) {
     <meta name="description" content="@meta.description">
     }
@@ -45,7 +46,7 @@
     @if(meta.themeColor.nonEmpty) {
     <meta name="theme-color" content="#@meta.themeColor">
     }
-    
+
     @* Open Graph *@
     <meta property="og:title" content="@meta.title">
     @if(meta.description.nonEmpty) {
@@ -58,12 +59,14 @@
     @meta.fbSiteType.map { siteType =>
     <meta property="og:type" content="@siteType">
     }
-    
+
     @* Additional head content (fonts, custom meta) *@
     @headContent
-    
-    @* === CSS INCLUDES === *@
-    @paste.surface.includes.html.css(cssInclude, page)
+
+    @* === JAM + CSS INCLUDES === *@
+    @JamIncludes.record(jam, page)
+    @paste.surface.includes.html.css(cssInclude)
+    @JamIncludes.dump(AssetType.Css, page)
 </head>
 <body>
     @if(headerContent.body.nonEmpty) {
@@ -71,20 +74,21 @@
         @headerContent
     </header>
     }
-    
+
     <main>
         @mainContent
     </main>
-    
+
     @if(footerContent.body.nonEmpty) {
     <footer>
         @footerContent
     </footer>
     }
-    
+
     @* === JS INCLUDES === *@
-    @paste.surface.includes.html.js(jsInclude, page)
-    
+    @paste.surface.includes.html.js(jsInclude)
+    @JamIncludes.dump(AssetType.Js, page)
+
     @* Additional footer scripts *@
     @footerScripts
 

@@ -1,9 +1,10 @@
 package com.pastestack.surface.view_model_factories
 
+import com.pastestack.assetgraph.Jam
 import com.pastestack.surface.view_models.includes.{CSSInclude, JSInclude}
 
 /**
- * Factory for creating asset include ViewModels.
+ * Factory for creating asset include ViewModels and jams.
  *
  * JAM factories carry module names only — no versions, timestamps or composed
  * URLs. Rendering them is the per-render paste-assetgraph page object's job.
@@ -18,22 +19,22 @@ object IncludesFactory {
   val PASTE_FORMS = Seq("paste.ui.autogrow", "paste.ui.utilities.throttle")
 
   /**
-   * Create JS include for paste core + UI modules via JAM.
+   * Jam for paste core + UI modules.
    */
-  def forPasteJam(additionalModules: Seq[String] = Seq.empty): JSInclude =
-    JSInclude(jamModules = PASTE_CORE ++ PASTE_UI ++ additionalModules)
+  def forPasteJam(additionalModules: Seq[String] = Seq.empty): Jam =
+    Jam(js = PASTE_CORE ++ PASTE_UI ++ additionalModules)
 
   /**
-   * Create JS include for forms (autogrow, throttle) via JAM.
+   * Jam for forms modules (autogrow, throttle) on top of core.
    */
-  def forForms(): JSInclude =
-    JSInclude(jamModules = PASTE_CORE ++ PASTE_FORMS)
+  def forForms(): Jam =
+    Jam(js = PASTE_CORE ++ PASTE_FORMS)
 
   /**
-   * Create CSS include for the given modules via JAM.
+   * Jam for the given CSS modules.
    */
-  def forCssJam(modules: Seq[String]): CSSInclude =
-    CSSInclude(jamModules = modules)
+  def forCssJam(modules: Seq[String]): Jam =
+    Jam(css = modules)
 
   /**
    * Create JS include for direct file paths (non-JAM).

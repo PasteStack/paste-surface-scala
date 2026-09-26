@@ -1,21 +1,15 @@
 @import com.pastestack.surface.view_models.includes.{CSSInclude, JamIncludes}
-@import com.pastestack.assetgraph.PastePage
 
 @**
- * CSS Includes - direct file links, or a JAM group the paste-assetgraph page
- * renders. `page` is the per-render page object: ignored in direct mode,
- * required in JAM mode.
+ * CSS Includes - direct file links. JAM markup is the per-render
+ * paste-assetgraph page's dump, emitted by the layout — not by an include.
  *@
 
-@(include: CSSInclude, page: Option[PastePage] = None)
+@(include: CSSInclude)
 
-@if(include.useJam) {
-@JamIncludes.css(include, page)
-} else {
-@* Direct mode: use source files, Prod mode: use minified *@
+@* Debug mode: use source files, Prod mode: use minified *@
 @for(path <- include.pasteIncludes) {
 @defining(JamIncludes.directPath(path, "css", include.debugMode)) { resolvedPath =>
 <link rel="stylesheet" href="@resolvedPath" type="text/css">
-}
 }
 }
