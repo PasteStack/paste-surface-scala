@@ -184,6 +184,33 @@ only on success; `failure` carries an optional `IoReplyFragmentEnvelopeError`
 (error type plus detail) for the `error_type`/`error_code`/`error_detail`
 fields.
 
+### JAM includes
+
+Includes declare JAM module names only; the markup — URL, dependency
+expansion, inlining — is rendered by the per-render `PastePage` from
+`paste-assetgraph-runtime`, which the application owns via its `Paste`
+instance. Both include templates take an optional `page`: ignored by direct
+includes, required by JAM mode (`Some(assetgraph.page())`, a fresh page per
+render), where a missing page fails the render with a clear error.
+
+```scala
+// App-owned, created once at startup:
+val assetgraph = Paste.fromClasspath()
+
+// In the page template, a fresh assetgraph.page() per render arrives as a
+// parameter:
+@(cssIncludes: CSSInclude, jsIncludes: JSInclude, page: PastePage)
+
+@paste.surface.includes.html.css(cssIncludes, Some(page))
+@paste.surface.includes.html.js(jsIncludes, Some(page))
+```
+
+Migration: `jamVersion`, `jamModuleVersions` and `JSInclude.jamUrl` are
+removed — the surface composes no JAM URL. `IncludesFactory.forPasteJam` takes
+only `additionalModules`, `forForms` takes none, `AssetConfig` carries only
+`debugMode`, and `assets.version` is gone from `SurfaceConfig`. JAM-mode
+includes now need `Some(assetgraph.page())` at render time.
+
 Renderer checks use no additional test dependencies:
 
 ```sh
@@ -193,11 +220,15 @@ sbt 'Test/runMain com.pastestack.surface.ImageSequenceRenderingChecks'
 sbt 'Test/runMain com.pastestack.surface.SectionNavRenderingChecks'
 sbt 'Test/runMain com.pastestack.surface.FormRenderingChecks'
 sbt 'Test/runMain com.pastestack.surface.RenderingChecks'
-sbt 'pekko/Test/runMain com.pastestack.surface.pekko.RenderingDirectivesChecks'
 ```
 
 They are plain main classes, so `sbt test` does not discover them; CI names them in
-the same way.
+the same way. The pekko binding's checks are a ScalaTest suite instead, run
+through `testOnly`:
+
+```sh
+sbt 'pekko/testOnly com.pastestack.surface.pekko.RenderingDirectivesChecks'
+```
 
 ### Pekko HTTP
 
@@ -205,8 +236,10 @@ the same way.
 `rendering` directive selects per `Rendering.select`, and `completeRendered`
 answers one status for the selected rendering with `Vary: X-Requested-With,
 Accept` always set. A JSON request without an encoder answers `406`.
-`renderedResponse` produces the same `HttpResponse` inside `complete(...)` for
-rejection handlers.
+`renderedResponse` is the synchronous form — it renders in place for
+rejection handlers, so a caller wrapping it in `complete(...)` must run that
+`Future` on an explicit blocking dispatcher; prefer `completeRendered`, which
+does so itself on the blocking-io dispatcher.
 
 ```scala
 libraryDependencies += "com.pastestack" %% "paste-surface-pekko" % "<version>"

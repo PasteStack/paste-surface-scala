@@ -79,7 +79,7 @@ package object surface {
   type IoReplyFragmentTarget = view_models.components.IoReplyFragmentTarget
   val IoReplyFragmentTarget = view_models.components.IoReplyFragmentTarget
 
-  // Includes (aggregates JAM calls for page rendering)
+  // Includes (JAM module names only; the paste-assetgraph page renders markup)
   type CSSInclude = view_models.includes.CSSInclude
   val CSSInclude = view_models.includes.CSSInclude
   

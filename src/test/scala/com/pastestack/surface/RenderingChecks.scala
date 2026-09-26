@@ -1,5 +1,6 @@
 package com.pastestack.surface
 
+import com.pastestack.surface.presenters.PagePresenter
 import com.pastestack.surface.rendering._
 import play.twirl.api.Html
 
@@ -170,6 +171,25 @@ object RenderingChecks {
       Seq("a" -> (null: IoReplyFragmentMarkup)), Seq.empty, 1.0)))
     assert(rejected(IoReplyFragmentEnvelope.success(
       Seq("a" -> fragment), Seq("k" -> (null: String)), 1.0)))
+
+    // PagePresenter JSON goes through a caller-supplied encoder; the
+    // inherited no-arg default and presenter failures both surface loudly.
+    val named = new PagePresenter[String] {
+      def present(): String = "home"
+    }
+    val stringJson: ViewModelJson[String] = model => s"""{"page":"$model"}"""
+    assert(named.presentAsJson(stringJson) == "{\"page\":\"home\"}")
+    val broken = new PagePresenter[String] {
+      def present(): String = throw new IllegalStateException("boom")
+    }
+    assert(Try(broken.presentAsJson(stringJson)) match {
+      case Failure(_: IllegalStateException) => true
+      case _ => false
+    })
+    assert(Try(named.presentAsJson()) match {
+      case Failure(_: UnsupportedOperationException) => true
+      case _ => false
+    })
 
     assert(IoReplyFragmentEnvelope.reasonPhrase(200) == "OK")
     assert(IoReplyFragmentEnvelope.reasonPhrase(204) == "No Content")

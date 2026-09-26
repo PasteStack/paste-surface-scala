@@ -1,5 +1,7 @@
 package com.pastestack.surface.presenters
 
+import com.pastestack.assetgraph.Jam
+import com.pastestack.surface.rendering.ViewModelJson
 import com.pastestack.surface.view_models.page.PageMeta
 import com.pastestack.surface.view_models.components.Hero
 import com.pastestack.surface.view_models.includes.{CSSInclude, JSInclude}
@@ -25,15 +27,16 @@ import com.pastestack.surface.view_model_factories.{PageMetaFactory, HeroFactory
  */
 trait PagePresenter[T] {
   def present(): T
-  
-  // Override for JSON response
-  def presentAsJson(): String = {
-    import scala.util.Try
-    Try {
-      // Default: use case class toString, override for proper JSON
-      present().toString
-    }.getOrElse("{}")
-  }
+
+  // The host supplies the JSON serializer; the library picks none. The
+  // inherited no-arg default fails loudly rather than emitting case-class
+  // toString or swallowing a presenter failure as "{}".
+  @deprecated("Pass a ViewModelJson encoder", "next")
+  def presentAsJson(): String =
+    throw new UnsupportedOperationException("presentAsJson requires a ViewModelJson encoder")
+
+  def presentAsJson(encoder: ViewModelJson[T]): String =
+    encoder.encode(present())
 }
 
 /**
@@ -42,7 +45,8 @@ trait PagePresenter[T] {
 case class PageViewModel(
   pageMeta: PageMeta,
   cssIncludes: CSSInclude,
-  jsIncludes: JSInclude
+  jsIncludes: JSInclude,
+  jam: Jam = Jam()
 )
 
 /**
@@ -53,7 +57,8 @@ case class HomePageViewModel(
   mainHero: Hero,
   sections: Seq[Hero],
   cssIncludes: CSSInclude,
-  jsIncludes: JSInclude
+  jsIncludes: JSInclude,
+  jam: Jam = Jam()
 )
 
 /**
@@ -81,7 +86,8 @@ class HomePagePresenter(
         HeroFactory.forSection("about")
       ),
       cssIncludes = IncludesFactory.forDirectCSS(Seq("/css/main.css"), assetConfig.debugMode),
-      jsIncludes = IncludesFactory.forPasteJam(assetConfig, customModules)
+      jsIncludes = JSInclude(),
+      jam = IncludesFactory.forPasteJam(customModules)
     )
   }
 }
