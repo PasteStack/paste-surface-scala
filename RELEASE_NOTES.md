@@ -1,3 +1,30 @@
+# paste-surface-scala v0.5.0
+
+**Date:** 2026-09-25
+
+## Changed — breaking
+
+- JAM rendering delegates to the per-render paste-assetgraph page.
+  `jambase` takes `page: Option[PastePage]` and `jam: Jam`, records the jam
+  once, emits the CSS dump in `<head>` and the JS dump at the end of
+  `<body>`, then finishes the page. `CSSInclude`/`JSInclude` keep plain
+  `<link>`/`<script>` file includes only; their JAM fields are removed.
+- Includes factories (`forPasteJam`, `forForms`, `forCssJam`) return `Jam`
+  values carrying the css and js module lists instead of include view
+  models.
+- `JamIncludes.record(jam, page)` and `JamIncludes.dump(type, page)` take the
+  page as an argument; `page.dump()` with no type emits the css markup then
+  the js.
+- The assetgraph runtime pin moves to the published `0.3.1`, whose page API
+  replaces `dumpCss`/`dumpJs` with the scoped `dump` and adds `finish()`.
+
+## Added
+
+- Page finish at the root layout: `page.finish()` after the JS dump fails
+  the render naming any jammed module that never reached a dump of its
+  type. Includes stay partial renderers; a host-side finish after the
+  layout is a no-op.
+
 # paste-surface-scala v0.4.0
 
 **Date:** 2026-09-24
