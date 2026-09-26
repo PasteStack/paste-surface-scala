@@ -1,7 +1,7 @@
 package com.pastestack.surface
 
 import java.nio.file.{Files, Path, Paths}
-import com.pastestack.assetgraph.{Paste, PastePage}
+import com.pastestack.assetgraph.{Paste, PasteException, PastePage}
 import com.pastestack.surface.view_model_factories.IncludesFactory
 import com.pastestack.surface.view_models.includes.{CSSInclude, JSInclude}
 
@@ -101,7 +101,9 @@ object IncludesRenderingChecks {
       IncludesFactory.forCssJam(Seq("site.theme")).jamModules == Seq("site.theme")
     )
 
-    // jambase renders both dumps when given the page object.
+    // jambase renders both dumps when given the page object — and seals it:
+    // the layout's closing body calls finish, which the complete page
+    // passes.
     val layoutPage = pasteAssetgraph.page()
     val layout = paste.surface.layouts.html.jambase(
       PageMeta(siteName = "Site", title = "Home", description = ""),
@@ -111,6 +113,30 @@ object IncludesRenderingChecks {
     )()()(play.twirl.api.Html("<p>hi</p>"))()().body
     assert(layout.contains("site.theme"), layout)
     assert(layout.contains("<script"), layout)
+    assert(layoutPage.isFinished, "jambase must finish the page it was given")
+
+    // The layout's own finish is the check: a css jam stranded without a
+    // css dump — here a direct-mode include emits no dump — must fail the
+    // render naming the module, not ship a page that lost it.
+    val late = pasteAssetgraph.page()
+    late.jam(css = Seq("site.theme"))
+    val missing = try {
+      paste.surface.layouts.html.jambase(
+        PageMeta(siteName = "Site", title = "Home", description = ""),
+        CSSInclude(pasteIncludes = Seq("/css/site.css")),
+        JSInclude(jamModules = Seq("app")),
+        Some(late)
+      )()()(play.twirl.api.Html("<p>hi</p>"))()()
+      sys.error("expected PasteException")
+    } catch {
+      case e: PasteException => e.getMessage
+    }
+    assert(missing.contains("site.theme"), missing)
+    assert(!late.isFinished, "a failed finish must not seal the page")
+    // The page stays open: deliver the missing dump, then finish.
+    late.dumpCss()
+    assert(late.finish() == "")
+    assert(late.isFinished)
 
     // Direct mode still renders one tag per path, minified unless debugging.
     val direct = IncludesFactory.forDirectJS(Seq("/js/app.js"))

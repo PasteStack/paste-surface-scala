@@ -87,5 +87,10 @@
     
     @* Additional footer scripts *@
     @footerScripts
+
+    @* Seal the page: every jammed module must have reached a dump, or the
+       render fails here rather than silently dropping it. No-op without a
+       page (direct include mode) or on an already-finished page. *@
+    @page.map(_.finish()).getOrElse("")
 </body>
 </html>
