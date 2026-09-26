@@ -15,7 +15,7 @@ import com.pastestack.surface.view_model_factories.{PageMetaFactory, IncludesFac
  * 
  * // Then use in routes/templates:
  * val pageMeta = PageMetaFactory.forHomePage(config.site)
- * val jsIncludes = IncludesFactory.forPasteJam(config.assets)
+ * val jsIncludes = IncludesFactory.forPasteJam()
  * }}}
  */
 case class SurfaceConfig(
@@ -42,7 +42,6 @@ object SurfaceConfig {
         defaultKeywords = ps.getString("site.default-keywords")
       ),
       assets = IncludesFactory.AssetConfig(
-        version = ps.getString("assets.version"),
         debugMode = ps.getBoolean("assets.debug-mode")
       )
     )
@@ -63,10 +62,9 @@ object SurfaceConfig {
     siteName: String,
     domainName: String,
     themeColor: String = "",
-    assetVersion: String = "",
     debugMode: Boolean = false
   ): SurfaceConfig = SurfaceConfig(
     site = PageMetaFactory.SiteConfig(siteName, domainName, themeColor),
-    assets = IncludesFactory.AssetConfig(assetVersion, debugMode)
+    assets = IncludesFactory.AssetConfig(debugMode)
   )
 }
