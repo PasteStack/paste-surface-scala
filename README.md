@@ -11,16 +11,16 @@ resolver alongside the dependency:
 // build.sbt
 resolvers += "paste-registry" at "https://gitlab.com/api/v4/projects/70289607/packages/maven"
 
-libraryDependencies += "com.pastestack" %% "paste-surface-scala" % "0.3.0"
+libraryDependencies += "com.pastestack" %% "paste-surface-scala" % "0.5.0"
 ```
 
 Three coordinates exist, and they are not interchangeable:
 
 | Coordinate | Published by | Use for |
 |---|---|---|
-| `0.3.0` | a release tag pipeline | anything that ships |
-| `0.3.0-develop-latest` | every develop pipeline, moving | tracking unreleased work |
-| `0.3.0-develop-<sha>` | every develop pipeline, immutable | reproducing one develop build |
+| `0.5.0` | a release tag pipeline | anything that ships |
+| `0.5.0-develop-latest` | every develop pipeline, moving | tracking unreleased work |
+| `0.5.0-develop-<sha>` | every develop pipeline, immutable | reproducing one develop build |
 
 There is no `-SNAPSHOT` coordinate. A pin left on one resolves to whatever was
 published before this versioning, which is not this source.
