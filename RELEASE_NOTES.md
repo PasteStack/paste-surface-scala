@@ -1,3 +1,21 @@
+# paste-surface-scala v0.6.0
+
+**Date:** 2026-09-28
+
+## Added
+
+- `SiteDocuments` (`com.pastestack.surface.documents`): the site-documents
+  model — `canonicalOrigin`, `indexablePaths`, `uncrawlablePaths` — enforcing
+  its invariants at construction (absolute http(s) origin, slash-prefixed
+  paths, no indexable path under a disallow prefix per RFC 9309
+  literal-prefix matching) and rendering `robotsTxt`/`sitemapXml`
+  deterministically: derived `Sitemap:` line, escaped `<loc>` entries, no
+  synthetic `lastmod`. Implements `spec/documents/site-documents.md` from
+  the companion spec (v0.6.0).
+- `SiteDocumentsDirectives` in the pekko module (`paste-surface-pekko`):
+  `robotsRoute`, `sitemapRoute`, and the composed `siteDocumentRoutes`. The
+  deployment wraps them in its own baseline response headers.
+
 # paste-surface-scala v0.5.0
 
 **Date:** 2026-09-25
