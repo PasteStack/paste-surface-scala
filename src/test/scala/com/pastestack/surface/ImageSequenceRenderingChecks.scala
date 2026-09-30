@@ -43,6 +43,10 @@ object ImageSequenceRenderingChecks {
     assert(plain.contains("""data-sequence-progress-id="main""""), plain)
     assert(plain.contains("""data-sequence-range="top-exit""""), plain)
     assert(plain.contains("""data-sequence-preload="auto""""), plain)
+    // playhead is a real preload mode — the component must emit it for the
+    // Element to honor the playhead-following window.
+    val playhead = render(sequence().copy(preload = "playhead"))
+    assert(playhead.contains("""data-sequence-preload="playhead""""), playhead)
     // Fit and the scroll window always carry the effective value; the model
     // defaults are the Element's defaults, so an element omitting them means
     // the same thing.
@@ -61,6 +65,16 @@ object ImageSequenceRenderingChecks {
     assert(occurrences(plain, "<picture") == 1, plain)
     assert(!plain.contains("<script"), plain)
     assert(!plain.contains("data-sequence-state"), plain)
+
+    // With no responsive candidates the plain model still serves reduced
+    // motion: posterFinal arrives through its own source ahead of the
+    // fallback img, which keeps posterFirst.
+    val plainReduced = """<source media="\(prefers-reduced-motion: reduce\)" srcset="([^"]+)"""".r
+      .findFirstMatchIn(plain).map(_.group(1)).getOrElse(sys.error(plain))
+    assert(plainReduced == "/sequences/hero/final.jpg", plainReduced)
+    assert(plain.contains("""<img src="/sequences/hero/first.jpg""""), plain)
+    assert(plain.indexOf("prefers-reduced-motion") < plain.indexOf("<img"),
+      "the reduced-motion source must precede the fallback img")
 
     // Poster candidates are emitted in ascending width whatever order they arrive in.
     val responsive = render(sequence().copy(posterSources = posters, posterSizes = "50vw"))

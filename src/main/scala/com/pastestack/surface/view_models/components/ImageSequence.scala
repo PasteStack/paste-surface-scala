@@ -29,7 +29,7 @@ final case class ImageSequence(
   require(posterWidth > 0, "ImageSequence posterWidth must be positive")
   require(posterHeight > 0, "ImageSequence posterHeight must be positive")
   require(range == "top-exit" || range == "enter-exit", "ImageSequence range must be top-exit or enter-exit")
-  require(preload == "auto" || preload == "all", "ImageSequence preload must be auto or all")
+  require(preload == "auto" || preload == "all" || preload == "playhead", "ImageSequence preload must be auto, all or playhead")
   require(priority >= 0, "ImageSequence priority must be nonnegative")
   require(scrollFrom.forall(_ >= 0), "ImageSequence scrollFrom must be nonnegative")
   require(scrollTo.forall(_ >= 0), "ImageSequence scrollTo must be nonnegative")
