@@ -1,3 +1,23 @@
+# paste-surface-scala v0.7.0
+
+**Date:** 2026-09-30
+
+## Added
+
+- `ImageSequence` rendering emits a reduced-motion source carrying
+  `posterFinal` ahead of the fallback image when the model supplies no
+  responsive poster candidates, so a no-motion reader resolves the
+  settled final frame rather than the first. Implements the poster
+  fallback branch added in the companion spec (v0.7.0).
+
+## Fixed
+
+- `SiteDocuments` path matching: overlap detection percent-decodes path
+  segments before the literal prefix test — `/%63ontact` is `/contact`
+  — and `*` and `$` map to their literals instead of comparing as
+  wildcards against themselves. A whole-site `Disallow: /` no longer
+  emits a meaningless `Allow: /` line beside it.
+
 # paste-surface-scala v0.6.0
 
 **Date:** 2026-09-28

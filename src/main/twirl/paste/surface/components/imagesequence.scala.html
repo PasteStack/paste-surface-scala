@@ -30,6 +30,8 @@
         <source type="image/webp" srcset="@sources.map(source => s"${source.first} ${source.width}w").mkString(", ")" sizes="@sequence.posterSizes">
         @if(sources.exists(_.fallbackFinal.nonEmpty)) { <source type="image/jpeg" media="(prefers-reduced-motion: reduce)" srcset="@sources.flatMap(source => source.fallbackFinal.map(path => s"$path ${source.width}w")).mkString(", ")" sizes="@sequence.posterSizes"> }
         @if(sources.exists(_.fallbackFirst.nonEmpty)) { <source type="image/jpeg" srcset="@sources.flatMap(source => source.fallbackFirst.map(path => s"$path ${source.width}w")).mkString(", ")" sizes="@sequence.posterSizes"> }
+        } else {
+        <source media="(prefers-reduced-motion: reduce)" srcset="@sequence.posterFinal">
         }
         <img src="@sources.headOption.flatMap(_.fallbackFirst).getOrElse(sequence.posterFirst)" width="@sequence.posterWidth" height="@sequence.posterHeight" alt="" @if(sources.nonEmpty){srcset="@sources.map(source => s"${source.first} ${source.width}w").mkString(", ")" sizes="@sequence.posterSizes"}>
     </picture>
