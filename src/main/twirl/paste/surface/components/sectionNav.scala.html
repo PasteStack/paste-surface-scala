@@ -7,7 +7,7 @@
     <ul class="paste-ui-section-nav-items">
         @for(item <- nav.items) {
         <li class="paste-ui-section-nav-item@if(item.cssClass.nonEmpty){ @item.cssClass}">
-            <a class="paste-ui-section-nav-link" href="#@item.targetId">@item.label</a>
+            <a class="paste-ui-section-nav-link" href="@item.href.getOrElse("#" + item.targetId)">@item.label</a>
         </li>
         }
     </ul>
@@ -18,7 +18,7 @@
         <ul class="paste-ui-section-nav-items">
             @for(item <- nav.items) {
             <li class="paste-ui-section-nav-item@if(item.cssClass.nonEmpty){ @item.cssClass}">
-                <a class="paste-ui-section-nav-link" href="#@item.targetId">@item.label</a>
+                <a class="paste-ui-section-nav-link" href="@item.href.getOrElse("#" + item.targetId)">@item.label</a>
             </li>
             }
         </ul>

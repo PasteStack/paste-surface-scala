@@ -5,7 +5,8 @@ import play.twirl.api.Html
 case class NavItem(
   label: String,
   targetId: String,
-  cssClass: String = ""
+  cssClass: String = "",
+  href: Option[String] = None
 )
 
 /**
