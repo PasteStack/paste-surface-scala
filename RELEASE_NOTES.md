@@ -1,3 +1,16 @@
+# paste-surface-scala v0.8.0
+
+**Date:** 2026-10-01
+
+## Added
+
+- `NavItem.href` (`SectionNav.scala`, `sectionNav.scala.html`):
+  implements the companion spec addition (v0.8.0). An item's optional
+  `href` is emitted verbatim in place of the generated `#` + `targetId`
+  fragment, so a nav rendered on a page that does not contain the target
+  sections can link to them with real URLs such as `/#approach`.
+  Rendering checks cover verbatim emission and fragment suppression.
+
 # paste-surface-scala v0.7.0
 
 **Date:** 2026-09-30
