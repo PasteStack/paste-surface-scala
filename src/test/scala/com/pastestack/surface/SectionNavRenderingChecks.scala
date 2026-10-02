@@ -88,5 +88,15 @@ object SectionNavRenderingChecks {
     )
     assert(!touchWithoutScrollspy.contains("data-paste-scrollspy"))
     assert(!touchWithoutScrollspy.contains("data-spy-touch"))
+
+    val linked = render(
+      SectionNav(
+        Seq(NavItem("Approach", "approach", href = Some("/#approach")), NavItem("Home", "", href = Some("/"))),
+        sticky = false
+      )
+    )
+    assert(linked.contains("href=\"/#approach\""), "explicit href is emitted verbatim")
+    assert(linked.contains("href=\"/\""), "explicit href is emitted verbatim")
+    assert(!linked.contains("href=\"#approach\""), "explicit href suppresses the generated fragment")
   }
 }
