@@ -77,17 +77,13 @@ class RenderingDirectivesChecks extends AnyFlatSpec with Matchers with Scalatest
   }
 
   it should "render off the request dispatcher" in {
-    @volatile var renderingThread = ""
     val recording = Presentation[String](
-      page = model => {
-        renderingThread = Thread.currentThread().getName
-        Html(s"<html><body>page:$model</body></html>")
-      },
+      page = _ => Html(Thread.currentThread().getName),
       ioReplyFragment = model => Html(s"<div>fragment:$model</div>")
     )
     Get() ~> routeFor(recording) ~> check {
       status shouldBe StatusCodes.OK
-      renderingThread should include("default-blocking-io-dispatcher")
+      responseAs[String] should include("default-blocking-io-dispatcher")
     }
   }
 

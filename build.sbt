@@ -52,6 +52,10 @@ lazy val `paste-surface-scala` = (project in file("."))
     libraryDependencies ++= Seq(
       "org.playframework.twirl" %% "twirl-api" % "2.0.1",
       "com.typesafe" % "config" % "1.4.3",
+      // The image-sequence catalog serializes itself into an inert
+      // script[type="application/json"] block — its own serializer,
+      // not a transitive accident.
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.2",
       // Its POM already declares the JNA the loader needs.
       "com.pastestack" %% "paste-assetgraph-runtime" % "0.3.1"
     )

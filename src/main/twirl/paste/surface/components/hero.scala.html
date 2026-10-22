@@ -1,17 +1,40 @@
 @import com.pastestack.surface.view_models.components.Hero
+@import com.pastestack.surface.view_models.components.MediaId
 
 @(hero: Hero)(content: Html)
 
-<section id="@hero.name" class="paste-ui-hero@if(hero.showImage){ paste-ui-hero-with-image}@if(hero.stickyNavTarget){ sticky-nav-target}"
+@* A sequenced hero keeps its existing image element as the sequence's
+   host — same id, same presentation class, same authored baseline —
+   and the hero section itself carries the scrub declaration the
+   sequence measures, plus the sequence's cssClass as the scope root.
+   Parallax stays off a sequenced hero: the sequence reads scroll
+   position itself. Heroscroll discovers the image by its
+   paste-ui-hero-image class, not the parallax attribute, so the host
+   also declares data-hero-image-fixed — the established opt-out that
+   keeps the parallax writer off the sequence's frame presentation. A
+   disableParallax hero keeps its paste-ui-hero-basicimage host, which
+   heroscroll never discovers, so no hero effect touches it. The intro's
+   skip control, when the intro declares one, comes first, before the
+   media and the content, so it is the first stop in tab order and
+   focus returning to the section after a skip continues into the
+   content instead of crossing it twice. The
+   page positions it out of flow over the media; until it does, a
+   revealed skip takes a line at the top of the hero. *@
+<section id="@hero.name" class="paste-ui-hero@if(hero.showImage || hero.imageSequence.nonEmpty){ paste-ui-hero-with-image}@hero.imageSequence.map(_.cssClass).filter(_.nonEmpty).map { c => @c}@if(hero.stickyNavTarget){ sticky-nav-target}"
          data-paste-hero="@hero.name"
+         @hero.imageSequence.map { sequence =>
+         @paste.surface.components.html.scrubDeclaration(sequence.scrub)
+         }
          @if(hero.imageSequence.isEmpty && !hero.disableParallax){data-paste-parallax="true"}
          @if(hero.stickyNavTarget){data-paste-sticky-target="true"}>
     @hero.imageSequence.map { sequence =>
-        @paste.surface.components.html.imagesequence(
-            sequence,
-            s"${hero.name}-image",
-            sequence.progressTargetId.getOrElse(hero.name)
-        )
+        @defining(s"${hero.name}-image") { mediaId =>
+        @paste.surface.components.html.sequenceSkip(sequence, MediaId(mediaId))
+        @paste.surface.components.html.sequenceMedia(
+            sequence, MediaId(mediaId), mediaId,
+            if (hero.disableParallax) "paste-ui-hero-basicimage" else "paste-ui-hero-image",
+            heroImageFixed = !hero.disableParallax)
+        }
     }
     @if(hero.imageSequence.isEmpty && hero.showImage) {
         <i id="@hero.name-image" class="@if(hero.disableParallax) { paste-ui-hero-basicimage } else { paste-ui-hero-image }"></i>

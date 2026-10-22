@@ -1,0 +1,16 @@
+@import com.pastestack.surface.view_models.components.ImageSequence
+@import com.pastestack.surface.view_models.components.MediaId
+
+@(sequence: ImageSequence, mediaId: MediaId)
+
+@* The intro's skip control: authored markup the intro exposes while it
+   plays, emitted only when an intro declares one (skip, the default;
+   an intro with skip = false renders no control). It is an ordinary
+   button the page positions over the media (.paste-ui-imagesequence-skip).
+   The caller emits it as the scope's first child: it is then the first
+   tab stop in the scene, and a skip hands focus to the scope, from which
+   Tab continues into the content rather than back across it. Once the
+   page positions it out of flow, revealing it moves nothing. *@
+@sequence.intro.filter(_.skip).map { intro =>
+<button type="button" id="@{mediaId.value}-skip" class="paste-ui-imagesequence-skip" hidden>@intro.skipLabel</button>
+}

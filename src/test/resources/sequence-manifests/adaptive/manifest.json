@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "count": 4,
+  "sizes": [
+    {
+      "width": 480,
+      "height": 270,
+      "frames": [
+        { "src": "480/frame_0001.webp" },
+        { "src": "https://cdn.example.com/shared/frame_0002.webp" },
+        { "src": "480/frame_0003.webp" },
+        { "src": "data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEA" }
+      ]
+    },
+    {
+      "width": 960,
+      "height": 540,
+      "frames": [
+        { "src": "960/frame_0001.webp" },
+        { "src": "//cdn.example.com/shared/frame_0002-960.webp" },
+        { "src": "/960/frame_0003.webp" },
+        { "src": "data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEB" }
+      ]
+    }
+  ]
+}

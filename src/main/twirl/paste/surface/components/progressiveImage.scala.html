@@ -1,0 +1,19 @@
+@import com.pastestack.surface.view_models.components.ProgressiveImage
+
+@(image: ProgressiveImage)
+
+@* A standalone progressively resolved img: the authored src, width,
+   height and alt are the working baseline; the script block is inert
+   descriptor data the element reads for sharper rungs of the same
+   content. Without JavaScript the authored img is the whole
+   presentation — no opt-in attributes change that. With no sharper rung
+   there is nothing to resolve, so the opt-in and descriptor are omitted. *@
+<img src="@image.base.src"
+     @if(image.cssClass.nonEmpty) { class="@image.cssClass" }
+     width="@image.base.width"
+     height="@image.base.height"
+     alt="@image.alt"
+     @if(image.upgrades.nonEmpty) { data-paste-progressiveresolution data-image-sources="#@image.mediaId.value" }>
+@if(image.upgrades.nonEmpty) {
+<script id="@image.mediaId.value" type="application/json">@Html(image.descriptorJson)</script>
+}

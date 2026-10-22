@@ -7,7 +7,14 @@ case class NavItem(
   targetId: String,
   cssClass: String = "",
   href: Option[String] = None
-)
+) {
+  // The default link is the generated "#targetId" fragment, resolved by
+  // exact id rather than as a selector — an item carrying an explicit
+  // href never interpolates targetId, so the id rule binds only when the
+  // fragment is actually generated.
+  require(href != null, "NavItem href must not be null")
+  if (href.isEmpty) GeneratedId.requireFragmentId("NavItem targetId", targetId)
+}
 
 /**
  * Fragment disclosure configuration for a SectionNav: the panel is the
@@ -25,7 +32,12 @@ case class NavDisclosure(
   label: String = "Menu",
   footer: Option[Html] = None,
   closeLabel: String = "Close menu"
-)
+) {
+  // "#panelId" opens the panel and "#panelId-toggle" closes it — fragments
+  // and aria-controls resolve by exact id, so the id must be a valid
+  // fragment id, not a selector-safe identifier.
+  GeneratedId.requireFragmentId("NavDisclosure panelId", panelId)
+}
 
 case class SectionNav(
   items: Seq[NavItem],

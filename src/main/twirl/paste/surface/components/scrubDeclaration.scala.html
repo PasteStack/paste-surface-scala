@@ -1,0 +1,27 @@
+@import com.pastestack.surface.view_models.components.ScrubMode
+@import com.pastestack.surface.view_models.components.ScrollScrub
+
+@(scrub: ScrollScrub)
+
+@* One scrub declaration, emitted onto whatever element carries the scope —
+   the standalone sequence's own div or an existing ancestor such as the
+   hero's section. Container mode measures the root's own scroll range:
+   the subject and endpoint anchors do not apply there and are not
+   emitted; root, mode and the fractional window remain its contract. *@
+data-paste-scrollscrub
+@scrub.mode.map { mode =>
+data-scrub-mode="@mode.wireName"
+}
+@scrub.root.map { root =>
+data-scrub-root="@root"
+}
+@if(!scrub.mode.contains(ScrubMode.Container)) {
+@scrub.subject.map { subject =>
+data-scrub-subject="@subject"
+}
+data-scrub-start="@scrub.start"
+data-scrub-end="@scrub.end"
+}
+@scrub.windowStart.zip(scrub.windowEnd).map { case (a, b) =>
+data-scrub-window="@a.bigDecimal.stripTrailingZeros.toPlainString @b.bigDecimal.stripTrailingZeros.toPlainString"
+}
