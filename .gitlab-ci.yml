@@ -27,7 +27,9 @@ compile:
   script:
     - sbt compile Test/compile
   artifacts:
-    paths: [target/, project/target/]
+    # The pekko subproject has its own target tree; without it the test
+    # job recompiles the module the compile job already built.
+    paths: [target/, project/target/, pekko/target/]
     expire_in: 1 day
 
 test:
@@ -39,7 +41,7 @@ test:
   script:
     # The route checks run through the Pekko testkit under `sbt test`.
     # The template checks are main classes and must also be named explicitly.
-    - sbt test 'Test/runMain com.pastestack.surface.MarqueeRenderingChecks' 'Test/runMain com.pastestack.surface.IncludesRenderingChecks' 'Test/runMain com.pastestack.surface.ImageSequenceRenderingChecks' 'Test/runMain com.pastestack.surface.SectionNavRenderingChecks' 'Test/runMain com.pastestack.surface.FormRenderingChecks' 'Test/runMain com.pastestack.surface.RenderingChecks' 'Test/runMain com.pastestack.surface.SiteDocumentsChecks'
+    - sbt test 'Test/runMain com.pastestack.surface.MarqueeRenderingChecks' 'Test/runMain com.pastestack.surface.IncludesRenderingChecks' 'Test/runMain com.pastestack.surface.SectionNavRenderingChecks' 'Test/runMain com.pastestack.surface.FormRenderingChecks' 'Test/runMain com.pastestack.surface.RenderingChecks' 'Test/runMain com.pastestack.surface.SiteDocumentsChecks' 'Test/runMain com.pastestack.surface.ImageSequenceRenderingChecks' 'Test/runMain com.pastestack.surface.AdaptiveImageSequenceManifestChecks'
 
 # The recipe resolves the artifact policy, enforces the tag/VERSION guard, and
 # exports TOMSHLEY_CICD_BUILD_REVISION for build.sbt's version. The registry

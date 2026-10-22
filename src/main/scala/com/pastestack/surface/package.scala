@@ -21,13 +21,6 @@ package object surface {
   type Hero = view_models.components.Hero
   val Hero = view_models.components.Hero
 
-  type ImageSequence = view_models.components.ImageSequence
-  val ImageSequence = view_models.components.ImageSequence
-  type ImageSequenceIntro = view_models.components.ImageSequenceIntro
-  val ImageSequenceIntro = view_models.components.ImageSequenceIntro
-  type ImageSequencePoster = view_models.components.ImageSequencePoster
-  val ImageSequencePoster = view_models.components.ImageSequencePoster
-  
   type Address = view_models.components.Address
   val Address = view_models.components.Address
   
@@ -79,6 +72,37 @@ package object surface {
   type IoReplyFragmentTarget = view_models.components.IoReplyFragmentTarget
   val IoReplyFragmentTarget = view_models.components.IoReplyFragmentTarget
 
+  // Components: declarative media (paste.ui.* element declarations)
+  type ScrollScrub = view_models.components.ScrollScrub
+  val ScrollScrub = view_models.components.ScrollScrub
+
+  type ScrubMode = view_models.components.ScrubMode
+  val ScrubMode = view_models.components.ScrubMode
+
+  type ImageRepresentation = view_models.components.ImageRepresentation
+  val ImageRepresentation = view_models.components.ImageRepresentation
+
+  type ImageSequenceFrame = view_models.components.ImageSequenceFrame
+  val ImageSequenceFrame = view_models.components.ImageSequenceFrame
+
+  type ImageSequenceCatalog = view_models.components.ImageSequenceCatalog
+  val ImageSequenceCatalog = view_models.components.ImageSequenceCatalog
+
+  type ImageSequenceIntro = view_models.components.ImageSequenceIntro
+  val ImageSequenceIntro = view_models.components.ImageSequenceIntro
+
+  type IntroEasing = view_models.components.IntroEasing
+  val IntroEasing = view_models.components.IntroEasing
+
+  type ImageSequence = view_models.components.ImageSequence
+  val ImageSequence = view_models.components.ImageSequence
+
+  type ProgressiveImage = view_models.components.ProgressiveImage
+  val ProgressiveImage = view_models.components.ProgressiveImage
+
+  type MediaId = view_models.components.MediaId
+  val MediaId = view_models.components.MediaId
+
   // Includes (JAM module names only; the paste-assetgraph page renders markup)
   type CSSInclude = view_models.includes.CSSInclude
   val CSSInclude = view_models.includes.CSSInclude
@@ -90,6 +114,8 @@ package object surface {
   val PageMetaFactory = view_model_factories.PageMetaFactory
   val HeroFactory = view_model_factories.HeroFactory
   val IncludesFactory = view_model_factories.IncludesFactory
+  type AdaptiveImageSequenceManifest = view_model_factories.AdaptiveImageSequenceManifest
+  val AdaptiveImageSequenceManifest = view_model_factories.AdaptiveImageSequenceManifest
   
   // Factory config types
   type SiteConfig = view_model_factories.PageMetaFactory.SiteConfig

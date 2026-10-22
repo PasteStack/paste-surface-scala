@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "count": 2,
+  "sizes": [
+    {
+      "width": 480,
+      "height": 270,
+      "frames": [
+        { "src": "480/frame_0001.webp" },
+        { "src": "https://cdn.example.com/shared/frame_0002.webp" }
+      ]
+    },
+    {
+      "width": 960,
+      "height": 540,
+      "frames": [
+        { "src": "960/frame_0001.webp" },
+        { "src": "//cdn.example.com/shared/frame_0002.webp" }
+      ]
+    }
+  ]
+}

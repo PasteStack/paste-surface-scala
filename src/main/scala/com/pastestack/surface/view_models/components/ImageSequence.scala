@@ -1,68 +1,39 @@
 package com.pastestack.surface.view_models.components
 
+// The whole declaration an imagesequence host needs: which catalog,
+// which interval the scroll range samples, the optional intro, and
+// whether displayed frames may resolve sharper representations. Field
+// names mirror the module's data-sequence-* attributes; presentation —
+// poster, sizing, crop, reduced-motion choice — stays authored in CSS.
 final case class ImageSequence(
-  source: String,
-  posterFirst: String,
-  posterFinal: String,
-  posterWidth: Int,
-  posterHeight: Int,
-  progressTargetId: Option[String] = None,
-  range: String = "top-exit",
-  preload: String = "auto",
-  priority: Int = 0,
+  catalog: ImageSequenceCatalog,
   cssClass: String = "",
+  scrub: ScrollScrub = ScrollScrub.TopExit,
+  from: Option[Int] = None,
+  to: Option[Int] = None,
   intro: Option[ImageSequenceIntro] = None,
-  posterSources: Seq[ImageSequencePoster] = Seq.empty,
-  posterSizes: String = "100vw",
-  scrollFrom: Option[Int] = None,
-  scrollTo: Option[Int] = None,
-  fit: String = "cover",
-  scrollWindowStart: Double = 0.0,
-  scrollWindowEnd: Double = 1.0
+  resolution: Boolean = true,
+  scrubBufferFrames: Option[Int] = None
 ) {
-  private def requiredUrl(value: String, field: String): Unit =
-    require(Option(value).exists(_.trim.nonEmpty), s"ImageSequence $field must not be blank")
-
-  requiredUrl(source, "source")
-  requiredUrl(posterFirst, "posterFirst")
-  requiredUrl(posterFinal, "posterFinal")
-  require(posterWidth > 0, "ImageSequence posterWidth must be positive")
-  require(posterHeight > 0, "ImageSequence posterHeight must be positive")
-  require(range == "top-exit" || range == "enter-exit", "ImageSequence range must be top-exit or enter-exit")
-  require(preload == "auto" || preload == "all" || preload == "playhead", "ImageSequence preload must be auto, all or playhead")
-  require(priority >= 0, "ImageSequence priority must be nonnegative")
-  require(scrollFrom.forall(_ >= 0), "ImageSequence scrollFrom must be nonnegative")
-  require(scrollTo.forall(_ >= 0), "ImageSequence scrollTo must be nonnegative")
-  require(scrollFrom.isEmpty == scrollTo.isEmpty, "ImageSequence scroll endpoints must be provided together")
-  // The Element enforces the same contract at bind: an unknown fit throws, as
-  // does a window whose end does not exceed its start.
-  require(fit == "cover" || fit == "contain", "ImageSequence fit must be cover or contain")
-  require(scrollWindowStart >= 0.0 && scrollWindowStart <= 1.0, "ImageSequence scrollWindowStart must be within 0 and 1")
-  require(scrollWindowEnd >= 0.0 && scrollWindowEnd <= 1.0, "ImageSequence scrollWindowEnd must be within 0 and 1")
-  require(scrollWindowEnd > scrollWindowStart, "ImageSequence scrollWindowEnd must exceed scrollWindowStart")
-  progressTargetId.foreach { id =>
-    require(id.trim.nonEmpty, "ImageSequence progressTargetId must not be blank")
-    require(!id.contains("#") && !id.exists(_.isWhitespace), "ImageSequence progressTargetId must be a plain HTML ID")
-  }
-  // Candidate order is the renderer's business — it emits them ascending — so the
-  // model asks only that each width name a distinct candidate. Two candidates of
-  // the same width would put two srcset entries in the same slot, and which one a
-  // browser picks is not something the caller decides.
+  require(catalog != null, "ImageSequence catalog must not be null")
+  require(cssClass != null, "ImageSequence cssClass must not be null")
+  require(scrub != null, "ImageSequence scrub must not be null")
+  require(intro != null && intro.forall(_ != null), "ImageSequence intro must not be null")
+  require(from != null, "ImageSequence from must not be null")
+  require(to != null, "ImageSequence to must not be null")
   require(
-    posterSources.map(_.width).distinct.size == posterSources.size,
-    "ImageSequence poster widths must be distinct"
+    scrubBufferFrames != null && scrubBufferFrames.forall(_ >= 0),
+    "ImageSequence scrubBufferFrames must be nonnegative"
   )
-  posterSources.headOption.foreach { first =>
-    val expectedRatio = first.width.toDouble / first.height
-    posterSources.foreach { poster =>
-      // Rendered poster widths are rounded to whole pixels, so equal-looking
-      // ratios differ in the last decimals; compare within a one percent band
-      // rather than by exact equality.
-      val ratio = poster.width.toDouble / poster.height
-      require(
-        math.abs(ratio - expectedRatio) <= expectedRatio * 0.01,
-        "ImageSequence poster aspect ratios must match"
-      )
-    }
+  private def catalogIndex(value: Int, field: String): Unit =
+    require(
+      value >= 0 && value < catalog.frames.length,
+      s"ImageSequence $field must be an index within the catalog"
+    )
+  from.foreach(value => catalogIndex(value, "from"))
+  to.foreach(value => catalogIndex(value, "to"))
+  intro.foreach { declared =>
+    declared.from.foreach(value => catalogIndex(value, "intro from"))
+    declared.to.foreach(value => catalogIndex(value, "intro to"))
   }
 }

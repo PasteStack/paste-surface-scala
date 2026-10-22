@@ -1,3 +1,38 @@
+# paste-surface-scala v0.9.0
+
+**Date:** 2026-10-22
+
+## Added
+
+- Adaptive image sequence surface: `ImageSequenceFrame`,
+  `ImageSequenceCatalog`, `ImageRepresentation`, `MediaId`,
+  `ScrollScrub`, `ScrubMode`, `IntroEasing` and `ProgressiveImage` view
+  models, with `sequenceMedia`, `scrubDeclaration`, `sequenceSkip` and
+  `progressiveImage` templates emitting the same declarative markup a
+  page could hand-author.
+- `AdaptiveImageSequenceManifest` parses the typed manifest contract and
+  serializes the catalog into an inert JSON script block, single-owner
+  style; malformed manifests reject at the boundary.
+- `GeneratedId` validates HTML ids and generated `#` fragment targets;
+  `Input`, `Textarea`, `NavItem` and `NavDisclosure` reject null or
+  empty ids that would leave labels and toggles bound to nothing.
+- A sequenced hero can suppress the legacy parallax writer by emitting
+  `data-hero-image-fixed` — sequence frame ownership and background
+  presentation no longer compete on the same host.
+
+## Changed
+
+- `ImageSequenceFrame` enforces distinct literal representation sources
+  within a frame, so one URL cannot claim multiple intrinsic sizes; the
+  catalog-level check still governs reuse across frames.
+- `ScrollScrub` window bounds reject null containers and null values
+  with `IllegalArgumentException` instead of surfacing an NPE.
+
+## Removed
+
+- `ImageSequencePoster`: the reduced-motion poster is carried on the
+  sequence itself.
+
 # paste-surface-scala v0.8.0
 
 **Date:** 2026-10-01
