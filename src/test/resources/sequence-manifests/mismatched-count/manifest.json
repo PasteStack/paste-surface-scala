@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "count": 5,
+  "sizes": [
+    {
+      "width": 480,
+      "height": 270,
+      "frames": [
+        { "src": "480/frame_0001.webp" },
+        { "src": "480/frame_0002.webp" },
+        { "src": "480/frame_0003.webp" },
+        { "src": "480/frame_0004.webp" }
+      ]
+    }
+  ]
+}

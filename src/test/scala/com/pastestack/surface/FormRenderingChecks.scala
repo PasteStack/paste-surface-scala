@@ -10,6 +10,12 @@ object FormRenderingChecks {
   private def renderForm(form: Form, content: Html = Html("<p>Fields</p>")): String =
     paste.surface.components.formfield.html.form(form)(content).body
 
+  private def renderInput(field: Input): String =
+    paste.surface.components.formfield.html.input(field).body
+
+  private def renderTextarea(field: Textarea): String =
+    paste.surface.components.formfield.html.textarea(field).body
+
   private def renderIoReplyFragmentTarget(target: IoReplyFragmentTarget, content: Html = Html("<p>Inner</p>")): String =
     paste.surface.components.html.ioReplyFragmentTarget(target)(content).body
 
@@ -71,10 +77,57 @@ object FormRenderingChecks {
     assert(rejected(Form("/x", dataAttributes = Map("" -> "y"))))
     assert(rejected(Form("/x", dataAttributes = Map("Upper" -> "y"))))
     assert(!rejected(Form("/x", method = FormMethod.Post, enctype = FormEnctype.Multipart)))
-    assert(!rejected(Form("/x", dataAttributes = Map("umami-event" -> "v", "paste-autogrow" -> "true"))))
+    assert(!rejected(Form("/x", dataAttributes = Map("item-kind" -> "v", "paste-autogrow" -> "true"))))
     assert(rejected(Input(name = "email", dataAttributes = Map("x onclick" -> "y"))))
     assert(rejected(Button(name = "go", label = "Go", dataAttributes = Map("a=b" -> "y"))))
     assert(rejected(Textarea(name = "bio", dataAttributes = Map("Bad Key" -> "y"))))
+
+    // A declared id pairs the label with its control through for/id;
+    // without one the label renders as its control's sibling. Either
+    // way the control renders exactly once.
+    def count(html: String, token: String): Int = html.sliding(token.length).count(_ == token)
+
+    val labelled = renderInput(Input(name = "email", label = Some("Email")))
+    assert(labelled.contains("<label>Email</label>"))
+    assert(count(labelled, "<input") == 1)
+    assert(labelled.indexOf("</label>") < labelled.indexOf("<input"))
+    assert(!labelled.contains("for="))
+    assert(!labelled.contains("id=\""))
+
+    val linked = renderInput(Input(name = "email", id = Some("email"), label = Some("Email")))
+    assert(linked.contains("""<label for="email">"""))
+    assert(linked.contains("""id="email""""))
+    assert(count(linked, "<input") == 1)
+    assert(linked.indexOf("</label>") < linked.indexOf("<input"))
+
+    val unlabelled = renderInput(Input(name = "email"))
+    assert(!unlabelled.contains("<label"))
+    assert(count(unlabelled, "<input") == 1)
+
+    val labelledArea = renderTextarea(Textarea(name = "bio", label = Some("Bio")))
+    assert(labelledArea.contains("<label>Bio</label>"))
+    assert(count(labelledArea, "<textarea") == 1)
+    assert(labelledArea.indexOf("</label>") < labelledArea.indexOf("<textarea"))
+    assert(!labelledArea.contains("for="))
+
+    val linkedArea = renderTextarea(Textarea(name = "bio", id = Some("bio"), label = Some("Bio")))
+    assert(linkedArea.contains("""<label for="bio">"""))
+    assert(linkedArea.contains("""id="bio""""))
+    assert(count(linkedArea, "<textarea") == 1)
+    assert(linkedArea.indexOf("</label>") < linkedArea.indexOf("<textarea"))
+
+    val unlabelledArea = renderTextarea(Textarea(name = "bio"))
+    assert(!unlabelledArea.contains("<label"))
+    assert(count(unlabelledArea, "<textarea") == 1)
+
+    // An empty or whitespace id cannot pair a label with its control.
+    assert(rejected(Input(name = "email", id = Some(""), label = Some("Email"))))
+    assert(rejected(Textarea(name = "bio", id = Some("first bio"), label = Some("Bio"))))
+    assert(rejected(Input(name = "email", id = null)))
+    assert(rejected(Textarea(name = "bio", id = Some(null))))
+    // A field id is never written after a "#": HTML's own rule applies,
+    // and a leading "#" is an ordinary id character there.
+    assert(!rejected(Input(name = "email", id = Some("#email"), label = Some("Email"))))
 
     val target = renderIoReplyFragmentTarget(IoReplyFragmentTarget("feedback"))
     assert(target.contains("class=\"paste-ui-io-reply-fragment-target\""))

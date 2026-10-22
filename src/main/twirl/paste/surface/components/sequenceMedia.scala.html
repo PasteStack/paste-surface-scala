@@ -1,0 +1,34 @@
+@import com.pastestack.surface.view_models.components.ImageSequence
+@import com.pastestack.surface.view_models.components.MediaId
+
+@(sequence: ImageSequence, mediaId: MediaId, hostId: String, hostClass: String, heroImageFixed: Boolean = false)
+
+@* The sequence's media block: the host is an existing presentation
+   element whose authored image stays until a real frame is ready, the
+   catalog is an inert data block; the caller emits the intro's skip
+   control (sequenceSkip) first, before this block, and the host names
+   it only when the intro declares one. The baseline image
+   itself is authored in CSS so media conditions — reduced motion
+   included — pick it as content. heroImageFixed is the hero case: the host keeps the
+   paste-ui-hero-image identity heroscroll discovers by class, so the
+   sequence declares the established fixed opt-out — the sequence owns
+   the frame's background presentation, not the parallax writer. *@
+<i id="@hostId"
+   class="@hostClass"
+   data-paste-imagesequence="#@{mediaId.value}-catalog"
+   @if(heroImageFixed) { data-hero-image-fixed }
+   @if(sequence.resolution) { data-paste-progressiveresolution }
+   @sequence.from.map { value => data-sequence-from="@value" }
+   @sequence.to.map { value => data-sequence-to="@value" }
+   @sequence.scrubBufferFrames.map { value => data-sequence-scrub-buffer-frames="@value" }
+   @sequence.intro.map { intro =>
+   data-sequence-intro-trigger="ready"
+   data-sequence-intro-duration-ms="@intro.durationMs"
+   data-sequence-intro-easing="@intro.easing.wireName"
+   @if(intro.skip) {data-sequence-intro-skip="#@{mediaId.value}-skip"}
+   @intro.from.map { value => data-sequence-intro-from="@value" }
+   @intro.to.map { value => data-sequence-intro-to="@value" }
+   @intro.bufferMs.map { value => data-sequence-intro-buffer-ms="@value" }
+   }
+   aria-hidden="true"></i>
+<script id="@{mediaId.value}-catalog" type="application/json">@Html(sequence.catalog.toJson)</script>

@@ -1,42 +1,20 @@
 @import com.pastestack.surface.view_models.components.ImageSequence
+@import com.pastestack.surface.view_models.components.MediaId
 
-@(sequence: ImageSequence, mediaId: String, progressId: String)
+@(sequence: ImageSequence, mediaId: MediaId)
 
-@defining(sequence.posterSources.sortBy(_.width)) { sources =>
-<div id="@mediaId"
-     class="paste-candidate-imagesequence@{if (sequence.cssClass.nonEmpty) s" ${sequence.cssClass}" else ""}"
-     data-paste-candidate-imagesequence
-     data-sequence-source="@sequence.source"
-     data-sequence-progress-id="@progressId"
-     data-sequence-range="@sequence.range"
-     data-sequence-preload="@sequence.preload"
-     data-sequence-priority="@sequence.priority"
-     data-sequence-fit="@sequence.fit"
-     data-sequence-scroll-window-start="@sequence.scrollWindowStart"
-     data-sequence-scroll-window-end="@sequence.scrollWindowEnd"
-     @if(sequence.scrollFrom.nonEmpty) { data-sequence-scroll-from="@sequence.scrollFrom.get" }
-     @if(sequence.scrollTo.nonEmpty) { data-sequence-scroll-to="@sequence.scrollTo.get" }
-     @sequence.intro.map { intro =>
-     data-sequence-intro-mode="@intro.mode"
-     data-sequence-intro-duration-ms="@intro.durationMs"
-     data-sequence-intro-trigger="@intro.trigger"
-     data-sequence-intro-easing="@intro.easing"
-     @if(intro.toFrame.nonEmpty) { data-sequence-intro-to-frame="@intro.toFrame.get" }
-     }
-     >
-    <picture data-sequence-poster>
-        @if(sources.nonEmpty) {
-        <source type="image/webp" media="(prefers-reduced-motion: reduce)" srcset="@sources.map(source => s"${source.finalFrame} ${source.width}w").mkString(", ")" sizes="@sequence.posterSizes">
-        <source type="image/webp" srcset="@sources.map(source => s"${source.first} ${source.width}w").mkString(", ")" sizes="@sequence.posterSizes">
-        @if(sources.exists(_.fallbackFinal.nonEmpty)) { <source type="image/jpeg" media="(prefers-reduced-motion: reduce)" srcset="@sources.flatMap(source => source.fallbackFinal.map(path => s"$path ${source.width}w")).mkString(", ")" sizes="@sequence.posterSizes"> }
-        @if(sources.exists(_.fallbackFirst.nonEmpty)) { <source type="image/jpeg" srcset="@sources.flatMap(source => source.fallbackFirst.map(path => s"$path ${source.width}w")).mkString(", ")" sizes="@sequence.posterSizes"> }
-        } else {
-        <source media="(prefers-reduced-motion: reduce)" srcset="@sequence.posterFinal">
-        }
-        <img src="@sources.headOption.flatMap(_.fallbackFirst).getOrElse(sequence.posterFirst)" width="@sequence.posterWidth" height="@sequence.posterHeight" alt="" @if(sources.nonEmpty){srcset="@sources.map(source => s"${source.first} ${source.width}w").mkString(", ")" sizes="@sequence.posterSizes"}>
-    </picture>
-    <div class="paste-candidate-imagesequence-surface" data-sequence-media>
-        @sequence.intro.map { intro => <button type="button" class="paste-candidate-imagesequence-skip" data-sequence-intro-skip hidden>@intro.skipLabel</button> }
-    </div>
+@* One declared scene: the scope carries the scrub relationship the
+   sequence measures, the host is an existing element whose authored
+   image stays until a real frame is ready, the catalog is an inert
+   data block, and the skip — first, ahead of the media, for tab order,
+   and only when the intro declares one — is authored markup the intro
+   exposes while it plays. The baseline image itself is authored in CSS so media
+   conditions — reduced motion included — pick it as content. A scrub
+   subject outside the scope is declared on the model's ScrollScrub. *@
+<div id="@mediaId.value"
+     class="paste-ui-imagesequence-scope@if(sequence.cssClass.nonEmpty){ @sequence.cssClass}"
+     @paste.surface.components.html.scrubDeclaration(sequence.scrub)>
+    @paste.surface.components.html.sequenceSkip(sequence, mediaId)
+    @paste.surface.components.html.sequenceMedia(
+        sequence, mediaId, s"${mediaId.value}-host", "paste-ui-imagesequence")
 </div>
-}

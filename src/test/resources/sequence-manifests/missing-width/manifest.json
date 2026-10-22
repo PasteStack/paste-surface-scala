@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "count": 1,
+  "sizes": [
+    {
+      "height": 270,
+      "frames": [
+        { "src": "480/frame_0001.webp" }
+      ]
+    }
+  ]
+}
