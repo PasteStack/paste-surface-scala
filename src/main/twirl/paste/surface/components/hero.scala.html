@@ -20,7 +20,7 @@
    content instead of crossing it twice. The
    page positions it out of flow over the media; until it does, a
    revealed skip takes a line at the top of the hero. *@
-<section id="@hero.name" class="paste-ui-hero@if(hero.showImage || hero.imageSequence.nonEmpty){ paste-ui-hero-with-image}@hero.imageSequence.map(_.cssClass).filter(_.nonEmpty).map { c => @c}@if(hero.stickyNavTarget){ sticky-nav-target}"
+<section id="@hero.name" tabindex="-1" class="paste-ui-hero@if(hero.showImage || hero.imageSequence.nonEmpty){ paste-ui-hero-with-image}@hero.imageSequence.map(_.cssClass).filter(_.nonEmpty).map { c => @c}@if(hero.stickyNavTarget){ sticky-nav-target}"
          data-paste-hero="@hero.name"
          @hero.imageSequence.map { sequence =>
          @paste.surface.components.html.scrubDeclaration(sequence.scrub)

@@ -15,8 +15,9 @@
     @if(pageMeta.themeColor.nonEmpty) {
     <meta name="theme-color" content="#@pageMeta.themeColor">
     }
-    @if(pageMeta.url.nonEmpty) {
-    <link rel="canonical" href="https://@pageMeta.url">
+    @if(pageMeta.canonicalUrl.nonEmpty) {
+    <link rel="canonical" href="@pageMeta.canonicalUrl">
+    <meta property="og:url" content="@pageMeta.canonicalUrl">
     }
     <meta property="og:site_name" content="@pageMeta.siteName">
     <meta property="og:title" content="@pageMeta.title">

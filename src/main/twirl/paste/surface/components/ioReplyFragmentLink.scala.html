@@ -1,0 +1,5 @@
+@import com.pastestack.surface.view_models.components.IoReplyFragmentLink
+
+@(link: IoReplyFragmentLink)(content: Html)
+
+<a href="@link.href" data-paste-io-reply-fragment="@link.target"@if(link.cssClass.nonEmpty){ class="@link.cssClass"}>@content</a>

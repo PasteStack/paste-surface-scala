@@ -12,6 +12,12 @@ object SiteDocumentsChecks {
     }
 
   def main(args: Array[String]): Unit = {
+    for (path <- Seq("/public/../private/record", "/public/%2e%2E/private", "/./a", "/a/.", "/a/%2e", "/a/..", "/a/.%2E")) {
+      assert(rejected(SiteDocuments("https://example.com", Seq(path), Seq("/private"))))
+      assert(rejected(SiteDocuments("https://example.com", Seq.empty, Seq(path))))
+      assert(rejected(SiteDocuments("https://example.com", Seq.empty).copy(indexablePaths = Seq(path))))
+    }
+    assert(!rejected(SiteDocuments("https://example.com", Seq("/a/.../b"))))
     val documents = SiteDocuments(
       canonicalOrigin = "https://www.example.com",
       indexablePaths = Seq("/", "/privacy", "/terms"),

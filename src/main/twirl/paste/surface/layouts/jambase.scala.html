@@ -53,8 +53,9 @@
     <meta property="og:description" content="@meta.description">
     }
     <meta property="og:site_name" content="@meta.siteName">
-    @if(meta.url.nonEmpty) {
-    <meta property="og:url" content="@meta.url">
+    @if(meta.canonicalUrl.nonEmpty) {
+    <meta property="og:url" content="@meta.canonicalUrl">
+    <link rel="canonical" href="@meta.canonicalUrl">
     }
     @meta.fbSiteType.map { siteType =>
     <meta property="og:type" content="@siteType">

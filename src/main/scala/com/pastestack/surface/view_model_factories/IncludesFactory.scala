@@ -16,7 +16,7 @@ object IncludesFactory {
   // Standard paste modules
   val PASTE_CORE = Seq("paste", "paste.dom", "paste.event", "paste.util")
   val PASTE_UI = Seq("paste.ui.heroscroll", "paste.ui.stickynav", "paste.ui.smoothscroll")
-  val PASTE_FORMS = Seq("paste.ui.autogrow", "paste.ui.utilities.throttle")
+  val PASTE_FORMS = Seq("paste.ui.autogrow")
 
   /**
    * Jam for paste core + UI modules.
@@ -25,7 +25,7 @@ object IncludesFactory {
     Jam(js = PASTE_CORE ++ PASTE_UI ++ additionalModules)
 
   /**
-   * Jam for forms modules (autogrow, throttle) on top of core.
+   * Jam for forms module (autogrow) on top of core.
    */
   def forForms(): Jam =
     Jam(js = PASTE_CORE ++ PASTE_FORMS)

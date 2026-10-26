@@ -5,8 +5,18 @@
 <div class="paste-ui-carousel@if(carousel.cssClass.nonEmpty){ @carousel.cssClass}"
      @if(carousel.name.nonEmpty){data-paste-carousel-name="@carousel.name"}
      @if(carousel.autoCycleMs > 0){data-paste-carousel-autocycle="@carousel.autoCycleMs"}
-     @if(carousel.showIndicators){data-paste-carousel-indicate}>
-    <div class="paste-ui-carousel-items">
-    @content
+     @if(carousel.showIndicators){data-paste-carousel-indicate}
+     @if(carousel.variableWidth){data-paste-carousel-slide-width="variable"}
+     @if(carousel.showCounter){data-paste-carousel-count}
+     @if(carousel.animationEnabled){data-paste-carousel-animation-enabled}
+     @if(carousel.broadcastMoves){data-paste-carousel-broadcast-moves}
+     @carousel.controlsParentId.map { id => data-paste-carousel-controlsparent="@id" }
+     data-paste-carousel-previous-label="@carousel.previousLabel"
+     data-paste-carousel-next-label="@carousel.nextLabel"
+     data-paste-carousel-pause-label="@carousel.pauseLabel">
+    <div class="paste-ui-carousel-wrap">
+        <div class="paste-ui-carousel-items">
+        @content
+        </div>
     </div>
 </div>

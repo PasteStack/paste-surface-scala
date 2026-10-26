@@ -22,11 +22,13 @@ case class Input(
   errors: Seq[String] = Seq.empty,
   dataAttributes: Map[String, String] = Map.empty
 ) extends FormField {
-  // A label pairs with its control through for/id when an id is
-  // declared; an empty or whitespace id would leave it bound to nothing.
+  // A label uses for/id when declared and wraps the control otherwise.
+  // Help and errors require a caller-owned id for their association.
   // The id is never written after a "#", so HTML's own id rule applies.
   require(id != null, "Input id must not be null")
   id.foreach(GeneratedId.requireHtmlId("Input id", _))
+  require(id.nonEmpty || (description.isEmpty && errors.isEmpty),
+    "Input descriptions and errors require a caller-owned id")
   DataAttributeName.requireValid(dataAttributes)
 }
 
@@ -54,11 +56,35 @@ case class Textarea(
   errors: Seq[String] = Seq.empty,
   dataAttributes: Map[String, String] = Map.empty
 ) extends FormField {
-  // A label pairs with its control through for/id when an id is
-  // declared; an empty or whitespace id would leave it bound to nothing.
+  // A label uses for/id when declared and wraps the control otherwise.
+  // Help and errors require a caller-owned id for their association.
   // The id is never written after a "#", so HTML's own id rule applies.
   require(id != null, "Textarea id must not be null")
   id.foreach(GeneratedId.requireHtmlId("Textarea id", _))
+  require(id.nonEmpty || (description.isEmpty && errors.isEmpty),
+    "Textarea descriptions and errors require a caller-owned id")
+  DataAttributeName.requireValid(dataAttributes)
+}
+
+/** Options and optgroups are authored in the template's content slot. */
+case class Select(
+  name: String,
+  id: Option[String] = Option.empty,
+  label: Option[String] = Option.empty,
+  description: Option[String] = Option.empty,
+  required: Boolean = false,
+  disabled: Boolean = false,
+  multiple: Boolean = false,
+  size: Option[Int] = Option.empty,
+  autocomplete: Option[String] = Option.empty,
+  errors: Seq[String] = Seq.empty,
+  dataAttributes: Map[String, String] = Map.empty
+) extends FormField {
+  require(id != null, "Select id must not be null")
+  id.foreach(GeneratedId.requireHtmlId("Select id", _))
+  require(id.nonEmpty || (description.isEmpty && errors.isEmpty),
+    "Select descriptions and errors require a caller-owned id")
+  require(size.forall(_ > 0), "Select size must be positive")
   DataAttributeName.requireValid(dataAttributes)
 }
 

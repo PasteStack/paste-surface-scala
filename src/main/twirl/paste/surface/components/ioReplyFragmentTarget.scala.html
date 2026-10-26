@@ -2,4 +2,4 @@
 
 @(ioReplyFragmentTarget: IoReplyFragmentTarget)(content: Html)
 
-<div class="paste-ui-io-reply-fragment-target@if(ioReplyFragmentTarget.cssClass.nonEmpty){ @ioReplyFragmentTarget.cssClass}" data-paste-io-reply-fragment-target="@ioReplyFragmentTarget.name">@content</div>
+<div class="paste-ui-io-reply-fragment-target@if(ioReplyFragmentTarget.cssClass.nonEmpty){ @ioReplyFragmentTarget.cssClass}" data-paste-io-reply-fragment-target="@ioReplyFragmentTarget.name" data-paste-io-reply-fragment-format="@ioReplyFragmentTarget.format.wireName">@content</div>
