@@ -43,6 +43,7 @@ object IncludesRenderingChecks {
     )
 
   def main(args: Array[String]): Unit = {
+    assert(IncludesFactory.PASTE_FORMS == Seq("paste.ui.autogrow"))
     // record + dump emits exactly the page's own jam + dump markup — the
     // surface adds and removes nothing, so it composes no URL of its own.
     val jam = Jam(js = Seq("app"))
@@ -104,6 +105,9 @@ object IncludesRenderingChecks {
     assert(combinedHtml.indexOf("site.theme") < combinedHtml.indexOf("app+v1.0"), combinedHtml)
     assert(combined.finish() == "")
     assert(combined.isFinished)
+
+    // Native fragment links require no navigation module.
+    assert(IncludesFactory.forPasteJam().js.contains("paste.ui.smoothscroll"))
 
     // Factory jams carry names only.
     assert(

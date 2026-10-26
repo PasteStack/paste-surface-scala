@@ -1,7 +1,7 @@
 package com.pastestack.surface
 
 import com.pastestack.surface.view_models.components.IoReplyFragmentTarget
-import com.pastestack.surface.view_models.components.formfield.{Button, Form, FormEnctype, FormMethod, Input, Textarea}
+import com.pastestack.surface.view_models.components.formfield.{Button, Form, FormEnctype, FormMethod, FormSubmission, Input, Textarea}
 import play.twirl.api.Html
 
 import scala.util.{Failure, Try}
@@ -26,6 +26,26 @@ object FormRenderingChecks {
     }
 
   def main(args: Array[String]): Unit = {
+    for (id <- Seq("", "bad id", null)) {
+      assert(rejected(Form("/x", id = Some(id))))
+    }
+    assert(rejected(Form("/x", id = null)))
+    assert(rejected(Form("/x").copy(id = Some("bad id"))))
+    assert(!rejected(Form("/x", id = Some("#form"))))
+    assert(rejected(Input("x", description = Some("Help"))))
+    assert(rejected(Textarea("x", errors = Seq("Error"))))
+    assert(rejected(Input("x").copy(errors = Seq("Error"))))
+    assert(rejected(Textarea("x", id = Some("x"), description = Some("Help")).copy(id = None)))
+    val helped = Seq(
+      renderInput(Input("x", id = Some("field-x"), label = Some("X"), description = Some("Help"), errors = Seq("Wrong"))),
+      renderTextarea(Textarea("y", id = Some("field-y"), label = Some("Y"), description = Some("Help"), errors = Seq("Wrong"))))
+    helped.zip(Seq("field-x", "field-y")).foreach { (html, id) =>
+      assert(html.contains(s"""aria-describedby="$id-feedback""""))
+      assert(html.contains(s"""id="$id-feedback""""))
+      assert(html.contains("""aria-invalid="true""""))
+      assert(html.contains("Help") && html.contains("Wrong"))
+    }
+    assert(!renderInput(Input("valid", id = Some("valid"), description = Some("Help"))).contains("aria-invalid"))
     val plain = renderForm(Form("/feedback"))
     assert(plain.contains("class=\"paste-ui-form\""))
     assert(plain.contains("action=\"/feedback\""))
@@ -43,17 +63,18 @@ object FormRenderingChecks {
       method = FormMethod.Get,
       enctype = FormEnctype.Multipart,
       id = Some("signup-form"),
-      backgroundSubmit = true,
+      submission = FormSubmission.Html,
       errors = Seq("Try again", "Nope & nope"),
       cssClass = "wide",
       dataAttributes = Map("track" -> "signup")
     ))
-    assert(full.contains("class=\"paste-ui-form wide\""))
+    assert(full.contains("class=\"paste-ui-form paste-ui-formhtml wide\""))
     assert(full.contains("id=\"signup-form\""))
     assert(full.contains("action=\"/signup\""))
     assert(full.contains("method=\"get\""))
     assert(full.contains("enctype=\"multipart/form-data\""))
-    assert(full.contains("data-paste-form"))
+    assert(full.contains("paste-ui-formhtml"))
+    assert(!full.contains("data-paste-form"))
     assert(full.contains("data-track=\"signup\""))
     assert(full.contains("<ul class=\"paste-ui-form-errors\" role=\"alert\">"))
     assert(full.contains("<li>Try again</li>"))
@@ -83,14 +104,14 @@ object FormRenderingChecks {
     assert(rejected(Textarea(name = "bio", dataAttributes = Map("Bad Key" -> "y"))))
 
     // A declared id pairs the label with its control through for/id;
-    // without one the label renders as its control's sibling. Either
+    // without one the label wraps its control. Either
     // way the control renders exactly once.
     def count(html: String, token: String): Int = html.sliding(token.length).count(_ == token)
 
     val labelled = renderInput(Input(name = "email", label = Some("Email")))
-    assert(labelled.contains("<label>Email</label>"))
+    assert(labelled.contains("<label>Email"))
     assert(count(labelled, "<input") == 1)
-    assert(labelled.indexOf("</label>") < labelled.indexOf("<input"))
+    assert(labelled.indexOf("</label>") > labelled.indexOf("<input"))
     assert(!labelled.contains("for="))
     assert(!labelled.contains("id=\""))
 
@@ -105,9 +126,9 @@ object FormRenderingChecks {
     assert(count(unlabelled, "<input") == 1)
 
     val labelledArea = renderTextarea(Textarea(name = "bio", label = Some("Bio")))
-    assert(labelledArea.contains("<label>Bio</label>"))
+    assert(labelledArea.contains("<label>Bio"))
     assert(count(labelledArea, "<textarea") == 1)
-    assert(labelledArea.indexOf("</label>") < labelledArea.indexOf("<textarea"))
+    assert(labelledArea.indexOf("</label>") > labelledArea.indexOf("</textarea>"))
     assert(!labelledArea.contains("for="))
 
     val linkedArea = renderTextarea(Textarea(name = "bio", id = Some("bio"), label = Some("Bio")))
@@ -119,6 +140,17 @@ object FormRenderingChecks {
     val unlabelledArea = renderTextarea(Textarea(name = "bio"))
     assert(!unlabelledArea.contains("<label"))
     assert(count(unlabelledArea, "<textarea") == 1)
+
+    // HTML consumes one LF immediately after the textarea start tag. The
+    // renderer supplies that LF, leaving the complete escaped value intact.
+    for (value <- Seq("", "plain", "\n", "\nleading", "\rleading", "\r\nleading",
+                      "\n\nleading", " \nleading", "</textarea><script>value & text</script>")) {
+      val html = renderTextarea(Textarea(name = "message", value = value))
+      val start = html.indexOf('>', html.indexOf("<textarea")) + 1
+      val content = html.substring(start, html.indexOf("</textarea>", start))
+      assert(content == "\n" + play.twirl.api.HtmlFormat.escape(value).body,
+        s"textarea must preserve the supplied value after HTML discards its initial LF: $value")
+    }
 
     // An empty or whitespace id cannot pair a label with its control.
     assert(rejected(Input(name = "email", id = Some(""), label = Some("Email"))))

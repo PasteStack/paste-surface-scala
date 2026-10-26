@@ -1,0 +1,7 @@
+@import com.pastestack.surface.view_models.components.LazyContent
+
+@(content: LazyContent)(fallback: Html)
+
+<div data-lazy-load="@content.url"@content.id.map { id => id="@id" }@if(content.cssClass.nonEmpty){ class="@content.cssClass"}>
+    @fallback
+</div>

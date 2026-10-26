@@ -1,5 +1,6 @@
 @import com.pastestack.surface.view_models.components.ImageSequence
 @import com.pastestack.surface.view_models.components.MediaId
+@import com.pastestack.surface.view_models.components.SequencePlayback
 
 @(sequence: ImageSequence, mediaId: MediaId, hostId: String, hostClass: String, heroImageFixed: Boolean = false)
 
@@ -18,6 +19,10 @@
    data-paste-imagesequence="#@{mediaId.value}-catalog"
    @if(heroImageFixed) { data-hero-image-fixed }
    @if(sequence.resolution) { data-paste-progressiveresolution }
+   @sequence.playback match {
+       case SequencePlayback.Direct => {}
+       case SequencePlayback.Queued(fps) => {data-sequence-playback="queued" data-sequence-playback-fps="@fps"}
+   }
    @sequence.from.map { value => data-sequence-from="@value" }
    @sequence.to.map { value => data-sequence-to="@value" }
    @sequence.scrubBufferFrames.map { value => data-sequence-scrub-buffer-frames="@value" }

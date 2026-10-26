@@ -13,8 +13,14 @@ final case class ImageSequence(
   to: Option[Int] = None,
   intro: Option[ImageSequenceIntro] = None,
   resolution: Boolean = true,
-  scrubBufferFrames: Option[Int] = None
+  scrubBufferFrames: Option[Int] = None,
+  playback: SequencePlayback = SequencePlayback.Direct
 ) {
+  require(playback != null, "ImageSequence playback must not be null")
+  playback match {
+    case SequencePlayback.Queued(fps) => require(fps >= 1 && fps <= 120, "Queued playback rate must be 1..120 fps")
+    case SequencePlayback.Direct => ()
+  }
   require(catalog != null, "ImageSequence catalog must not be null")
   require(cssClass != null, "ImageSequence cssClass must not be null")
   require(scrub != null, "ImageSequence scrub must not be null")

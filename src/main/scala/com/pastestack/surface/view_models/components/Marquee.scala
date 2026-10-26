@@ -15,4 +15,7 @@ final case class Marquee(
     durationSeconds > 0.0 && durationSeconds.isFinite,
     "Marquee durationSeconds must be positive and finite"
   )
+
+  // The Elements declaration accepts decimal digits, not exponent notation.
+  val durationText: String = java.math.BigDecimal.valueOf(durationSeconds).toPlainString
 }

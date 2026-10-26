@@ -8,7 +8,19 @@ object IoReplyFragmentEnvelope {
     ioReplyFragments: Seq[(String, IoReplyFragmentMarkup)],
     variables: Seq[(String, String)],
     time: Double
+  ): String = render(200, ioReplyFragments, variables, time)
+
+  /** Render the same fragment outcome at its actual HTTP status, including errors. */
+  def render(
+    status: Int,
+    ioReplyFragments: Seq[(String, IoReplyFragmentMarkup)],
+    variables: Seq[(String, String)],
+    time: Double,
+    title: Option[String] = None
   ): String = {
+    require(status >= 200 && status <= 599, "fragment response status must be 200 to 599")
+    require(status != 204 && status != 205 && status != 304, "fragment response status must permit a body")
+    require(title != null && title.forall(_ != null), "fragment title must not be null")
     require(time.isFinite, "envelope time must be finite")
     val fragmentNames = ioReplyFragments.map(_._1)
     ioReplyFragments.foreach { case (name, ioReplyFragment) =>
@@ -45,7 +57,8 @@ object IoReplyFragmentEnvelope {
     val variableEntries = variables.map { case (name, value) =>
       s"${string(name)}:${string(value)}"
     }
-    s"""{"meta":{"code":200,"message":"OK","time":${number(time)}},"data":{"fragments":{${ioReplyFragmentEntries.mkString(",")}},"variables":{${variableEntries.mkString(",")}}}}"""
+    val titleField = title.fold("")(value => s""","title":${string(value)}""")
+    s"""{"meta":{"code":$status,"message":${string(reasonPhrase(status))},"time":${number(time)}},"data":{"fragments":{${ioReplyFragmentEntries.mkString(",")}},"variables":{${variableEntries.mkString(",")}}$titleField}}"""
   }
 
   def failure(
@@ -66,7 +79,7 @@ object IoReplyFragmentEnvelope {
   def reasonPhrase(status: Int): String = reasonPhrases.getOrElse(status, "")
 
   private def isValidVariableName(name: String): Boolean =
-    Option(name).exists(n => n.nonEmpty && !n.exists(c => c.isWhitespace || c == ',' || c == '='))
+    Option(name).exists(n => n.nonEmpty && !n.exists(c => c.isWhitespace || Character.isSpaceChar(c) || c == '\uFEFF' || c == ',' || c == '='))
 
   private def number(value: Double): String =
     new java.math.BigDecimal(java.lang.Double.toString(value)).toPlainString

@@ -1,3 +1,17 @@
+# Pending restoration patch
+
+- Replace `Form(backgroundSubmit = true)` with
+  `Form(submission = FormSubmission.Html)` and load `paste.ui.form.form_html`.
+  Its busy/failure classes and failure event now use the `formhtml` prefix.
+  `FormSubmission.Apply` selects the separate original JSON message flow;
+  `Native` remains the default. The validity module keeps its existing name.
+- Restore Carousel's runtime contract and add `LazyContent` markup for the
+  caller-driven loader. No automatic asset loading or DOM watching is implied.
+- Render Marquee durations as plain decimal text accepted by Elements.
+- Clarify that default includes select smoothscroll's pushState behavior.
+
+The release history below describes earlier APIs and is retained as history.
+
 # paste-surface-scala v0.9.0
 
 **Date:** 2026-10-22
@@ -138,7 +152,7 @@
 - `Form` view model and template: typed `FormMethod` and `FormEnctype`, an
   optional `id`, form-level `errors` rendered as a `role="alert"` list,
   `cssClass`, `dataAttributes`, and `backgroundSubmit`, which emits
-  `data-paste-form` for the `paste.ui.form` Element. A blank `action` is
+  `data-paste-form` for the `paste.ui.form.form_validity` Element. A blank `action` is
   rejected at construction.
 - `IoReplyFragmentTarget` view model and template: the named wrapper an IO
   reply fragment lands in.
