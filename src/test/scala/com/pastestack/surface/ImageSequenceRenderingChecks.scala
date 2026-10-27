@@ -595,7 +595,7 @@ object ImageSequenceRenderingChecks {
     val heroHtml = paste.surface.components.html.hero(
       Hero("main", showImage = true, imageSequence = Some(ImageSequence(catalog = twoFrame)))
     )(Html("<h1>Welcome</h1>")).body
-    assert(heroHtml.contains("""<section id="main" class="paste-ui-hero paste-ui-hero-with-image"""),
+    assert(heroHtml.contains("""<section id="main" tabindex="-1" class="paste-ui-hero paste-ui-hero-with-image"""),
       s"a sequenced hero is a hero with an image:\n$heroHtml")
     assert(heroHtml.contains("data-paste-scrollscrub"), "hero scrub declaration missing")
     assert(heroHtml.contains("""data-scrub-start="top top""""), "hero scrub start missing")

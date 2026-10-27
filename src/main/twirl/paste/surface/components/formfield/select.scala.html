@@ -1,0 +1,40 @@
+@import com.pastestack.surface.view_models.components.formfield.Select
+
+@(field: Select)(options: Html)
+
+@control = {
+    <span class="paste-ui-select">
+        <select @field.id.map { i => id="@i" }
+                name="@field.name"
+                @if(field.description.nonEmpty || field.errors.nonEmpty){ aria-describedby="@field.id.map(i => i + "-feedback")" }
+                @if(field.errors.nonEmpty){ aria-invalid="true" }
+                @if(field.required){ required }
+                @if(field.disabled){ disabled }
+                @if(field.multiple){ multiple }
+                @field.size.map { s => size="@s" }
+                @field.autocomplete.map { a => autocomplete="@a" }
+                @for((k, v) <- field.dataAttributes) { data-@k="@v" }
+        >@options</select>
+        <span data-paste-select-value aria-hidden="true"></span>
+    </span>
+}
+
+<div class="paste-ui-formfield paste-ui-formfield-select@if(field.errors.nonEmpty){ has-error}">
+    @field.label match {
+        case Some(lbl) if field.id.isEmpty => {
+            <label>@lbl@if(field.required){<span class="required">*</span>}@control</label>
+        }
+        case label => {
+            @label.map { lbl =>
+            <label@field.id.map { i => for="@i"}>@lbl@if(field.required){<span class="required">*</span>}</label>
+            }
+            @control
+        }
+    }
+    @if(field.description.nonEmpty || field.errors.nonEmpty) {
+    <div id="@field.id.map(i => i + "-feedback")">
+        @field.description.map { desc => <p class="paste-ui-formfield-description">@desc</p> }
+        @for(error <- field.errors) { <p class="paste-ui-formfield-error">@error</p> }
+    </div>
+    }
+</div>

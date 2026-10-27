@@ -44,6 +44,9 @@ package object surface {
   
   type CarouselSlide = view_models.components.CarouselSlide
   val CarouselSlide = view_models.components.CarouselSlide
+
+  type LazyContent = view_models.components.LazyContent
+  val LazyContent = view_models.components.LazyContent
   
   // Components: Form Fields
   type Input = view_models.components.formfield.Input
@@ -61,6 +64,9 @@ package object surface {
   type Form = view_models.components.formfield.Form
   val Form = view_models.components.formfield.Form
 
+  type FormSubmission = view_models.components.formfield.FormSubmission
+  val FormSubmission = view_models.components.formfield.FormSubmission
+
   type FormMethod = view_models.components.formfield.FormMethod
   val FormMethod = view_models.components.formfield.FormMethod
 
@@ -71,6 +77,12 @@ package object surface {
 
   type IoReplyFragmentTarget = view_models.components.IoReplyFragmentTarget
   val IoReplyFragmentTarget = view_models.components.IoReplyFragmentTarget
+
+  type IoReplyFragmentFormat = view_models.components.IoReplyFragmentFormat
+  val IoReplyFragmentFormat = view_models.components.IoReplyFragmentFormat
+
+  type IoReplyFragmentLink = view_models.components.IoReplyFragmentLink
+  val IoReplyFragmentLink = view_models.components.IoReplyFragmentLink
 
   // Components: declarative media (paste.ui.* element declarations)
   type ScrollScrub = view_models.components.ScrollScrub
@@ -93,6 +105,9 @@ package object surface {
 
   type IntroEasing = view_models.components.IntroEasing
   val IntroEasing = view_models.components.IntroEasing
+
+  type SequencePlayback = view_models.components.SequencePlayback
+  val SequencePlayback = view_models.components.SequencePlayback
 
   type ImageSequence = view_models.components.ImageSequence
   val ImageSequence = view_models.components.ImageSequence

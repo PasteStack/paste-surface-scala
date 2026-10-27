@@ -2,13 +2,12 @@
 
 @(form: Form)(content: Html)
 
-<form class="paste-ui-form@if(form.cssClass.nonEmpty){ @form.cssClass}"
+<form class="paste-ui-form@if(form.submission.cssClass.nonEmpty){ @form.submission.cssClass}@if(form.cssClass.nonEmpty){ @form.cssClass}"
       @form.id.map { i => id="@i" }
       action="@form.action"
       method="@form.method.wireName"
       enctype="@form.enctype.wireName"
       accept-charset="utf-8"
-      @if(form.backgroundSubmit){ data-paste-form }
       @for((k, v) <- form.dataAttributes) { data-@k="@v" }
 >
     @if(form.errors.nonEmpty) {

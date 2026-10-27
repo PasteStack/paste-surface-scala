@@ -118,7 +118,9 @@ id's syntax, not its uniqueness across the page.
 The renderer emits the `paste.ui.marquee` Element's contract: one labelled native list, one
 original list item per trusted HTML slot, and a hidden/disabled pause button until enhancement is
 available. Load the Element's CSS and JavaScript through the normal asset bootstrap. Surface
-renders markup only; it has no carousel runtime or duplicate-content mechanism.
+renders the declarations for the `paste.ui.carousel` Element.
+Its content slot contains `.paste-ui-carousel-item` children; load the carousel
+module and stylesheet for discrete paging. It does not duplicate slide content.
 
 ```scala
 @import com.pastestack.surface.view_models.components.Marquee
@@ -170,9 +172,11 @@ A page that clears its chrome with `scroll-padding-top` instead sets the
 custom property to `0px`, since the two add. A page without that stylesheet
 sets `scroll-margin-top` on its targets, or `scroll-padding-top` on the
 scrolling element, itself. Smooth motion is page
-CSS as well (`scroll-behavior`, with a `prefers-reduced-motion` rule); the
-`paste.ui.smoothscroll` Element only moves keyboard focus to the target once
-the browser's own fragment navigation lands.
+CSS as well (`scroll-behavior`, with a `prefers-reduced-motion` rule).
+Give a destination `tabindex="-1"` when it should take focus; the hero renderer
+supplies this on its section. The standard UI jam includes smoothscroll for controlled movement and
+pushState without fragment navigation. It does not move focus; choose native
+anchors without that module when native target focus is required.
 
 ### Image sequence
 
@@ -234,7 +238,7 @@ Tab continues into the content rather than crossing it a second time.
 
 The skip control is optional. `ImageSequenceIntro(..., skip = false)` renders
 no button and no `data-sequence-intro-skip` attribute; the intro still ends on
-any scroll, when the document is hidden, under reduced motion, on a failed
+scroll in Direct mode, when the document is hidden, under reduced motion, on a failed
 load, or when it completes. `skip` defaults to `true`, so existing intros
 render unchanged, and `skipLabel` is checked only when a skip renders.
 
@@ -257,7 +261,7 @@ overlays the top of the hero:
 Anchor it to an edge that stays on screen while the intro plays, as the top
 of the hero does (without a fixed header, `top: 1rem`): a hero taller than a
 phone's visible viewport puts a bottom-anchored skip below the fold, and
-scrolling to reach it ends the intro.
+scrolling to reach it ends a Direct-mode intro. Queued mode preserves a running intro.
 
 Every id a sequence derives is reserved on the page. An `imagesequence` with
 `MediaId("scene")` emits `scene`, `scene-host`, `scene-catalog` and, with an
@@ -303,30 +307,78 @@ selection instead where it already covers the requirement.
 
 ### Form and IO Reply Fragment Target
 
-`Form` renders a `<form>` with a content slot for its fields; `backgroundSubmit`
-emits `data-paste-form` so the `paste.ui.form` Element submits in the background.
+`Form` renders a `<form>` with a content slot for its fields; `submission` selects `FormSubmission.Native`, `.Apply` or `.Html`. Apply emits
+`paste-ui-apply`; Html emits `paste-ui-formhtml`. Load `paste.ui.form.form_apply` for
+JSON success/error messages or `paste.ui.form.form_html` for HTML replacement. Both
+use the separate `paste.ui.form.form_validity` validity module.
 Form-level `errors` render as a `role="alert"` list above the fields.
 `IoReplyFragmentTarget` renders the named target an IO reply fragment lands in.
 
 ```scala
-@paste.surface.components.formfield.html.form(Form(
-  action = "/feedback",
-  backgroundSubmit = true,
-  errors = Seq("Try again")
-)) {
-  @paste.surface.components.formfield.html.input(Input(name = "email", id = Some("feedback-email"), label = Some("Email")))
-}
-
 @paste.surface.components.html.ioReplyFragmentTarget(IoReplyFragmentTarget("feedback")) {
-  <p>Thanks</p>
+  @paste.surface.components.formfield.html.form(Form(
+    action = "/feedback",
+    submission = FormSubmission.Html,
+    errors = Seq("Try again")
+  )) {
+    @paste.surface.components.formfield.html.input(Input(name = "email", id = Some("feedback-email"), label = Some("Email")))
+  }
 }
 ```
+
+The reply target must be an ancestor of the form; the response replaces its
+contents. Without that relationship, submission remains native.
+
+While a transmitted background request is pending, Elements adds
+`aria-busy="true"`, `paste-ui-io-html-fragment-busy` and `.paste-ui-formhtml-busy`
+to that reply target. Settlement restores the prior aria value, removes the form
+busy class and removes the shared busy class if this operation added it, before
+failure notification or replay.
+Surface renders idle markup; neither `Form` nor `IoReplyFragmentTarget`
+pre-renders a busy state. This is one busy cause, and page CSS supplies its
+appearance. Unrelated target classes remain intact.
+
+`Input` and `Textarea` labels wrap their controls when no id is supplied; with
+an id, labels use `for`/`id`. Help text or server errors require a caller-owned
+id. Reserve both that id and `<id>-feedback` uniquely in the page: the renderer
+connects the feedback with `aria-describedby` and marks server errors with
+`aria-invalid="true"`. Existing help/error calls without an id must add one.
+`Form` validates optional ids using the same HTML-id grammar as field controls.
 
 `Form`'s `method` and `enctype` are the `FormMethod` and `FormEnctype` enums.
 A blank `action`, a null `method` or `enctype`, a `dataAttributes` name
 outside `[a-z0-9][a-z0-9._-]*` (on `Form` and the field components alike),
 and a blank or whitespace-carrying IO reply fragment target name are rejected
 at construction, including through `copy`.
+
+### Radio state and CSS
+
+`paste.ui.multistate` is a port of the original radio/selected-panel/history module.
+Author one radio per `data-multistate-key`/value, associated labels, and optional
+panels in ordinary Twirl markup. Several panels may share a pair. Keep controls
+and panels as siblings for the original reveal selector:
+
+```css
+input[data-multistate-key]:checked ~ [data-multistate-state] { display: block; }
+```
+
+Author native `name` attributes and unique label ids. Elements preserves them;
+its original GUID-based fallback supplies only missing names and ids. Supply
+value-specific `:checked` CSS too when the page must reveal panels without
+JavaScript. The complete markup and CSS are in Surface spec's
+`spec/elements/multistate.md`.
+
+The `formfield.input` template wraps each input and does not emit this sibling
+arrangement or a checked default. Use the direct markup above rather than
+adding a new renderer, wrapper or Scala selection model. Surface emits no
+runtime selected marker and subscribes to no events. Elements supplies the
+`data-multistate-state` and `multistate-state-{key}-{value}` reflection.
+
+Independent selectors use distinct keys and group names. The port does not
+provide mirrored strips or form-reset reconciliation. Its public state and
+event payload share the current dictionary; the earlier snapshot-copy and
+reentrant-change queue contracts are withdrawn. Surface does not promise those
+later assistant-added behaviors.
 
 ### Rendering a view model
 
@@ -354,9 +406,8 @@ presentation.render(model, Rendering.select(xRequestedWith, accept)) match {
 JSON is the view model encoded by an encoder the consumer supplies — Surface
 does not choose a JSON library; a JSON request with no encoder renders `None`,
 which the application answers `406`. `IoReplyFragmentEnvelope` encodes the
-separate IO reply fragment envelope reply (`success`/`failure`,
-`application/json`) the `paste.ui.io-reply-fragment-envelope` Element applies
-only on success; `failure` carries an optional `IoReplyFragmentEnvelopeError`
+IO reply fragment envelope reply (`render`/`success`/`failure`,
+`application/json`) that `paste.ui.form.form_autosave` accepts on success; `failure` carries an optional `IoReplyFragmentEnvelopeError`
 (error type plus detail) for the `error_type`/`error_code`/`error_detail`
 fields.
 
@@ -407,6 +458,8 @@ sbt 'Test/runMain com.pastestack.surface.AdaptiveImageSequenceManifestChecks'
 sbt 'Test/runMain com.pastestack.surface.ImageSequenceRenderingChecks'
 sbt 'Test/runMain com.pastestack.surface.SectionNavRenderingChecks'
 sbt 'Test/runMain com.pastestack.surface.FormRenderingChecks'
+sbt 'Test/runMain com.pastestack.surface.SelectRenderingChecks'
+sbt 'Test/runMain com.pastestack.surface.PageMetaRenderingChecks'
 sbt 'Test/runMain com.pastestack.surface.RenderingChecks'
 sbt 'Test/runMain com.pastestack.surface.SiteDocumentsChecks'
 ```
@@ -500,6 +553,186 @@ com.pastestack.surface.pekko (paste-surface-pekko)
 └── RenderingDirectives
 ```
 
+## Elements compatibility
+
+Elements contract update: autogrow grows only and uses a direct input handler;
+`PASTE_FORMS` includes only autogrow (throttle has no forms consumer). A sticky
+SectionNav now uses the existing `data-paste-sticky-nav` marker and the first
+`data-paste-sticky-target` emitted by `Hero(stickyNavTarget = true)`. Style
+`nav.paste-ui-sticky-active`; the root stuck class and custom nav events are
+removed. Without a target, the nav uses its initial document position as the
+threshold, preserving the supplied original’s fallback.
+
+
+Fidelity update: `.autogrow` and keyup remain supported. Explicitly loading
+`paste.ui.form.form_validity` restores ordinary-form validity reflection and submission
+blocking; marked forms retain background submission. The old non-native
+validity shim remains retired. `forForms()` still includes only autogrow.
+
+### Original enhancements
+
+Elements also supplies `paste.ui.allowed_chars`, `paste.ui.form.form_autosave`, `imageupload`,
+`js_tooltip`, `multistate`, `navigate_on_change`, `prevent_double_submit`,
+`select`, `sortable` and `update_text_on_input_change`. Select the required module names
+in `Jam(js = Seq(...))`; the dependency graph supplies their dependencies.
+The default `forForms()` remains autogrow only.
+
+`Form`, `Input`, `Textarea`, `Select` and `Button` view models carry their
+declarations through `dataAttributes`, with the `data-` prefix omitted in map
+keys. For example:
+
+```scala
+Form(action = "/profile", dataAttributes = Map(
+  "ui-autosave" -> "displayName,bio",
+  "autosave-action" -> "/profile/draft"
+))
+Input(name = "reference", pattern = Some("[0-9]+"),
+  dataAttributes = Map("allowed-char-expr" -> "[0-9]"))
+Button(name = "save", label = "Save",
+  dataAttributes = Map("prevent-double-submit" -> "true"))
+```
+
+These are markup declarations, not Scala implementations of the behavior.
+Author radio sibling layouts, upload companions, tooltip triggers,
+sortable slots and text outputs directly in Twirl content slots when the
+generic wrapped fields do not express the required structure. Radio names and
+IDs stay caller-owned. There is no browser controller in Surface.
+
+`formfield.html.select(Select("region", label = Some("Region"),
+dataAttributes = Map("paste-select" -> "")))(options)` emits a native select
+and its adjacent `aria-hidden` label mirror inside `.paste-ui-select`.
+`options` is ordinary Twirl option/optgroup markup; its `selected` attributes
+are the defaults. The Select model also supports id, description, errors,
+required, disabled, multiple, size and autocomplete. A label wraps an id-less
+control; feedback requires a caller-owned id, as with Input and Textarea.
+Load `paste.ui.select` and its stylesheet to reflect the option label for a
+custom appearance. Without enhancement the real select remains visible.
+Multiple selects and listboxes retain their native appearance. Omitting the
+`paste-select` attribute opts out; `forForms()` is unchanged.
+
+Autosave posts native FormData; its listed field names control change detection.
+It preserves the immediate first edit/change/blur and fixed ten-second typing
+window. `autosaving`, `not-autosaving` and `not-autosaved` reflect its request and
+acknowledgement state. Autosave delegates placement to the shared HTML-fragment utility. The existing Scala
+`IoReplyFragmentEnvelope` serializer remains a compatible wire-format function;
+its `data.fragments` and string variables work unchanged. Autosave also accepts
+the original `data.modules`, `data-update-contents` and `data-update-attribute`.
+The shared `paste.ui.utilities.io-html-fragment` utility also serves form replies,
+explicit lazy loads and marked anchor navigation. Autosave still decides which
+responses acknowledge its sent values.
+
+`paste.ui.form.form_html` owns form submission and failure policy and publishes
+`paste-ui-formhtml-busy` on the reply target. `prevent_double_submit` owns native
+navigation lifetime, preserving submitter values and releasing on reset or
+pageshow. The latter leaves canceled background submissions to `form_html`.
+Text reflection writes field values only into authored text placeholders;
+server reply markup and authored rich tooltip/template HTML remain separate
+trusted-markup contracts.
+
+### Metadata and document validation
+
+Both page layouts emit canonical and Open Graph URLs from `PageMeta.canonicalUrl`.
+The authored `url` remains available unchanged. Absolute http(s) URLs retain their
+scheme; `//host/path` and legacy `host/path` resolve to HTTPS. Empty URLs omit
+both tags. Malformed URLs, credentials, unsupported schemes and out-of-range
+ports fail construction, including `copy`; international hosts use punycode.
+The factory's legacy domain default therefore remains supported.
+
+`SiteDocuments` rejects literal or percent-encoded `.` and `..` path segments in
+both indexable and disallowed paths before checking overlap. Envelope variable
+names reject Java whitespace, Unicode space characters and U+FEFF, plus `,` and
+`=`, so JavaScript binding-name trimming cannot change a serialized key.
+
+The CI check list runs all ten Surface check programs listed above, including
+`SelectRenderingChecks` and `PageMetaRenderingChecks`, alongside the Pekko tests.
+
 ## License
 
 Apache License, Version 2.0. See `LICENSE` and `NOTICE.md`.
+
+
+The restoration separates `FormSubmission.Native`, `Apply` and `Html`. Migrate
+old `backgroundSubmit = true` callers to `submission = FormSubmission.Html`
+and their explicit JAM from `paste.ui.form.form_validity` to `paste.ui.form.form_html`; update
+`paste.ui.form:failed` listeners and `paste-ui-form-busy`/`-failure` styles to
+`formhtml`. The transport configuration attributes remain compatible.
+
+`LazyContent(url, id, cssClass)` renders `data-lazy-load` and a fallback slot.
+Call `paste.ui.lazy_loader.load_visible_content(parent)` after showing content,
+or the original all/single APIs as appropriate. Rendering is not an automatic
+fetch request. Its visibility test is layout size, not viewport intersection.
+
+`IncludesFactory.defaultIncludes()` includes smoothscroll: same-document links
+animate and pushState without native target focus or hashchange. An explicit
+`Jam` without smoothscroll retains native fragment navigation. `Jam` can also
+request an app-owned external-library wrapper such as `libs.jquery`; the
+wrapper must be in the asset graph. No external-library ViewModel is necessary.
+
+## Form family module names
+
+Use `paste.ui.form.form_validity` for native validity reflection,
+`paste.ui.form.form_apply` for JSON submissions, and `paste.ui.form.form_html`
+for HTML reply replacement. Apply and HTML include validity as a dependency.
+Choose one submission owner per form. `FormSubmission` and its emitted HTML
+remain unchanged: `Native`, `Apply`, and `Html` describe behavior, not file paths.
+
+Load the canonical modules directly. The former top-level form, apply,
+formhtml and autosave JavaScript entries have been removed; no compatibility
+includes remain. Autosave is `paste.ui.form.form_autosave`, at
+`modules/form/form_autosave/form_autosave.js`, with its own trigger and request
+lifetime. Its request deadline defaults to 30 seconds, overridden per form by
+`data-autosave-timeout`. Forms still require explicit
+autosave declarations; loading the module does not opt ordinary forms in.
+
+Existing classes, data attributes and `paste.ui.formhtml:failed` keep their
+spelling. The general form stylesheet and field mixins remain in `modules/form`.
+Import Apply styles from `modules/form/form_apply/form_apply.scss` or its silent
+`_mixin.scss`; the former `modules/apply` forwarding styles have been removed.
+
+## Ordered sequence playback
+
+`ImageSequence(..., playback = SequencePlayback.Queued(30))` preserves a running
+intro, then traverses from the authored scroll-range start to the latest scroll
+destination without dropping intermediate catalog indices. The rate is an integer
+from 1 to 120, defaulting to 30. `SequencePlayback.Direct` is the default and emits
+no new attributes. Queued emits `data-sequence-playback="queued"` and
+`data-sequence-playback-fps`. Rendering adds no listeners or runtime state.
+
+Input coalesces to the latest destination; travel continues after input stops
+and reverses from the current presentation. Readiness and resource limits still
+apply; a missing frame holds the last usable image. Intro completion has a
+bounded extension of 15 seconds beyond its duration. Explicit skip, reduced
+motion, hidden-page and history rules retain their existing priority. A scroll
+during startup waiting still cancels the intro. Native scrolling and CSS layout
+remain authoritative; this mode does not pin content in view.
+
+Queued playback continues from a completed intro endpoint, including intervening
+catalog frames when that endpoint differs from the scroll range start. Between
+due playback frames it sleeps; new input can update the destination immediately.
+
+## Rendered fragments beyond forms
+
+`IoReplyFragmentTarget(name, cssClass, format)` renders the existing named target
+plus `data-paste-io-reply-fragment-format="html|json"`; format defaults to
+`IoReplyFragmentFormat.Html`. `Json` explicitly requests a wrapped response.
+`IoReplyFragmentLink(href, target, cssClass)` and
+`paste.surface.components.html.ioReplyFragmentLink(link)(content)` render an
+ordinary anchor with the target declaration. Load `paste.ui.fragment_navigation`
+for that optional navigation behavior. The same href must render a full page
+for ordinary navigation. Neither type opts forms into autosave.
+After validating a reply, navigation commits the destination URL before inserting
+markup so native relative resources resolve correctly. A refused DOM write falls
+back to the full page in that same history entry.
+
+Use `IoReplyFragmentEnvelope.render(status, fragments, variables, time, title)`
+for JSON containing rendered markup at the actual response status, including
+422 validation responses. `title: Option[String]` updates an enhanced article
+navigation's document title. `success` still produces the 200 envelope; `failure`
+is a metadata-only error, without renderable markup. All helpers escape JSON;
+js/css lists remain metadata and do not load assets. The `Presentation` encoder
+can call this function with the same fragment template used by its HTML branch.
+Negotiated responses retain `Vary: X-Requested-With, Accept`; endpoint cache
+policy stays with the application.
+
+See [the rendering contract](../paste-surface-spec/spec/rendering/rendering.md)
+for response scope, ownership, navigation, lifecycle and native fallbacks.

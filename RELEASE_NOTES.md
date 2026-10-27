@@ -1,3 +1,43 @@
+# paste-surface-scala v0.10.0
+
+**Date:** 2026-10-26
+
+## Added
+
+- `FormSubmission` enum on `Form`: `Form(submission = FormSubmission.Html)`
+  selects `paste.ui.form.form_html` transport with `formhtml`-prefixed
+  busy/failure classes and failure event; `Apply` selects the original
+  JSON message flow (requires POST); `Native` remains the default. The
+  validity module keeps its existing name. `Form` now also requires a
+  non-null, valid HTML `id`.
+- `IoReplyFragmentLink`, `IoReplyFragmentFormat` and the
+  `ioReplyFragmentLink` template: declare fragment-transport requests
+  (`data-paste-io-reply-fragment`, `-format`, `-target`) for Elements'
+  shared `io-html-fragment` transport.
+- `LazyContent` view model and `lazyContent` template: markup for the
+  caller-driven `lazy_loader`; no automatic asset loading or DOM
+  watching is implied.
+- `Select` formfield view model and `select.scala.html` template,
+  including `data-paste-select-value`.
+- `SequencePlayback` view model and `sequenceMedia` queued-playback
+  attributes (`data-sequence-playback`, `-playback-fps`,
+  `data-sequence-from`, `data-sequence-to`,
+  `data-sequence-scrub-buffer-frames`).
+- Carousel's runtime contract restored against the matching Elements
+  Carousel module.
+
+## Changed
+
+- Marquee durations render as plain decimal text accepted by Elements.
+- Default includes documentation now states smoothscroll's pushState
+  behavior.
+
+## Removed
+
+- `Form(backgroundSubmit: Boolean)`: superseded by
+  `Form(submission: FormSubmission)`; `backgroundSubmit = true` maps to
+  `FormSubmission.Html`.
+
 # paste-surface-scala v0.9.0
 
 **Date:** 2026-10-22
@@ -138,7 +178,7 @@
 - `Form` view model and template: typed `FormMethod` and `FormEnctype`, an
   optional `id`, form-level `errors` rendered as a `role="alert"` list,
   `cssClass`, `dataAttributes`, and `backgroundSubmit`, which emits
-  `data-paste-form` for the `paste.ui.form` Element. A blank `action` is
+  `data-paste-form` for the `paste.ui.form.form_validity` Element. A blank `action` is
   rejected at construction.
 - `IoReplyFragmentTarget` view model and template: the named wrapper an IO
   reply fragment lands in.

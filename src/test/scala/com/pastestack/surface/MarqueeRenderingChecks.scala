@@ -1,6 +1,7 @@
 package com.pastestack.surface
 
 import java.util.regex.Pattern
+import com.pastestack.surface.view_models.components.Marquee
 import play.twirl.api.Html
 
 object MarqueeRenderingChecks {
@@ -117,7 +118,10 @@ object MarqueeRenderingChecks {
     }
     Seq(java.lang.Double.MIN_VALUE, 0.5, Double.MaxValue).foreach { duration =>
       val model = defaults.copy(durationSeconds = duration)
-      checkStructure(render(model, Seq.empty), Seq.empty, duration = duration.toString)
+      val expected = java.math.BigDecimal.valueOf(duration).toPlainString
+      assert(!model.durationText.exists(c => c == 'e' || c == 'E'))
+      assert(model.durationText.toDouble == duration)
+      checkStructure(render(model, Seq.empty), Seq.empty, duration = expected)
     }
   }
 }

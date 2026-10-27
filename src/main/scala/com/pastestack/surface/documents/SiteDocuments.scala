@@ -53,8 +53,12 @@ final case class SiteDocuments(
 
   private val renderedIndexable: Seq[String] = indexablePaths.map(SiteDocuments.canonicalForm)
   private val renderedUncrawlable: Seq[String] = uncrawlablePaths.map(SiteDocuments.canonicalForm)
-  private val matchingIndexable: Seq[String] = indexablePaths.map(SiteDocuments.matchingForm)
-  private val matchingUncrawlable: Seq[String] = uncrawlablePaths.map(SiteDocuments.matchingForm)
+  (renderedIndexable.iterator ++ renderedUncrawlable.iterator).foreach { path =>
+    require(!path.split('/').exists(segment => segment == "." || segment == ".."),
+      s"site document paths must not contain literal or encoded dot segments: $path")
+  }
+  private val matchingIndexable: Seq[String] = renderedIndexable.map(SiteDocuments.matchingForm)
+  private val matchingUncrawlable: Seq[String] = renderedUncrawlable.map(SiteDocuments.matchingForm)
 
   indexablePaths.lazyZip(matchingIndexable).foreach { (declared, matching) =>
     require(!matchingUncrawlable.exists(matching.startsWith),
@@ -160,7 +164,7 @@ object SiteDocuments {
    *  only to overlap checking, never to emitted text: an emitted
    *  `Disallow: /foo-$` would read `$` as an end anchor. */
   private def matchingForm(path: String): String =
-    canonicalForm(path).replace("%2A", "*").replace("%24", "$")
+    path.replace("%2A", "*").replace("%24", "$")
 
   /** `<loc>` content is element text — a configured origin carrying markup
    *  characters must not be able to break the document. */
