@@ -1,16 +1,42 @@
-# Pending restoration patch
+# paste-surface-scala v0.10.0
 
-- Replace `Form(backgroundSubmit = true)` with
-  `Form(submission = FormSubmission.Html)` and load `paste.ui.form.form_html`.
-  Its busy/failure classes and failure event now use the `formhtml` prefix.
-  `FormSubmission.Apply` selects the separate original JSON message flow;
-  `Native` remains the default. The validity module keeps its existing name.
-- Restore Carousel's runtime contract and add `LazyContent` markup for the
-  caller-driven loader. No automatic asset loading or DOM watching is implied.
-- Render Marquee durations as plain decimal text accepted by Elements.
-- Clarify that default includes select smoothscroll's pushState behavior.
+**Date:** 2026-10-26
 
-The release history below describes earlier APIs and is retained as history.
+## Added
+
+- `FormSubmission` enum on `Form`: `Form(submission = FormSubmission.Html)`
+  selects `paste.ui.form.form_html` transport with `formhtml`-prefixed
+  busy/failure classes and failure event; `Apply` selects the original
+  JSON message flow (requires POST); `Native` remains the default. The
+  validity module keeps its existing name. `Form` now also requires a
+  non-null, valid HTML `id`.
+- `IoReplyFragmentLink`, `IoReplyFragmentFormat` and the
+  `ioReplyFragmentLink` template: declare fragment-transport requests
+  (`data-paste-io-reply-fragment`, `-format`, `-target`) for Elements'
+  shared `io-html-fragment` transport.
+- `LazyContent` view model and `lazyContent` template: markup for the
+  caller-driven `lazy_loader`; no automatic asset loading or DOM
+  watching is implied.
+- `Select` formfield view model and `select.scala.html` template,
+  including `data-paste-select-value`.
+- `SequencePlayback` view model and `sequenceMedia` queued-playback
+  attributes (`data-sequence-playback`, `-playback-fps`,
+  `data-sequence-from`, `data-sequence-to`,
+  `data-sequence-scrub-buffer-frames`).
+- Carousel's runtime contract restored against the matching Elements
+  Carousel module.
+
+## Changed
+
+- Marquee durations render as plain decimal text accepted by Elements.
+- Default includes documentation now states smoothscroll's pushState
+  behavior.
+
+## Removed
+
+- `Form(backgroundSubmit: Boolean)`: superseded by
+  `Form(submission: FormSubmission)`; `backgroundSubmit = true` maps to
+  `FormSubmission.Html`.
 
 # paste-surface-scala v0.9.0
 
