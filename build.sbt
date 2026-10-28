@@ -1,3 +1,16 @@
+// Copyright (c) 2017–present Tomshley LLC
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import com.tomshley.magicroot.sbt.projectsettings.PublishGitLabPlugin
 
 lazy val projectName = "paste-surface-scala"
@@ -12,6 +25,14 @@ ThisBuild / Test / fork := true
 
 lazy val commonSettings = Seq(
   organization := projectOrgName,
+  licenses := {
+    val tagOrBranch =
+      if (version.value.endsWith("SNAPSHOT")) "main"
+      else "v" + version.value
+    Seq(
+      ("Apache-2.0", url("https://raw.githubusercontent.com/PasteStack/paste-surface-scala/" + tagOrBranch + "/LICENSE"))
+    )
+  },
   // The house Scala 3 line (magicroot's ProjectSettingDefinitions.Scala3).
   scalaVersion := "3.4.2",
   magicRootPublishGitLabProjectId := sys.env.get("TOMSHLEY_CICD_PUBLISH_PROJECT_ID").map(_.toInt).getOrElse(70289607),
