@@ -648,7 +648,7 @@ The CI check list runs all ten Surface check programs listed above, including
 
 ## License
 
-Apache License, Version 2.0. See `LICENSE` and `NOTICE.md`.
+Apache License, Version 2.0. See `LICENSE` and `NOTICE`.
 
 
 The restoration separates `FormSubmission.Native`, `Apply` and `Html`. Migrate
