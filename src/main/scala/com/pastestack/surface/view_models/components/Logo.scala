@@ -20,5 +20,6 @@ case class Logo(
   width: Int,
   height: Int,
   viewBox: Option[String] = None,
-  cssClass: String = ""
+  cssClass: String = "",
+  scrollTop: Boolean = false
 )
