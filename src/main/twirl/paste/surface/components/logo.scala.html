@@ -2,7 +2,7 @@
 
 @(logo: Logo)(svgContent: Html)
 
-<a href="@logo.href" class="paste-ui-logo@if(logo.cssClass.nonEmpty){ @logo.cssClass}" aria-label="@logo.ariaLabel">
+<a href="@logo.href" class="paste-ui-logo@if(logo.cssClass.nonEmpty){ @logo.cssClass}" aria-label="@logo.ariaLabel"@if(logo.scrollTop){ data-paste-scrolltop}>
     <svg width="@logo.width" height="@logo.height" @if(logo.viewBox.nonEmpty){viewBox="@logo.viewBox.get"} role="img">
         <title>@logo.title</title>
         @svgContent

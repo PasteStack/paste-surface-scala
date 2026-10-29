@@ -1,3 +1,17 @@
+# paste-surface-scala v0.11.0
+
+**Date:** 2026-10-29
+
+## Added
+
+- `Logo(scrollTop = true)` emits `data-paste-scrolltop` on its own
+  anchor, so a declared link to the current page picks up the
+  `paste.ui.scrolltop` element's return-to-top navigation without a
+  reload. Without the option the rendered anchor is unchanged, and
+  without JavaScript the link still navigates to its href.
+
+---
+
 # paste-surface-scala v0.10.1
 
 **Date:** 2026-10-28
