@@ -1,3 +1,18 @@
+# paste-surface-scala v0.12.0
+
+**Date:** 2026-10-29
+
+## Added
+
+- `SectionNav(smoothscroll = true)` emits `data-paste-smoothscroll` on the
+  `<nav>`, declaring it a `paste.ui.smoothscroll` container: its section
+  links then use smoothscroll's motion and completion history. Without the
+  option, which is the default, the rendered nav is unchanged and its links
+  are native fragment navigation, as paste-elements 0.8.1 discovers only
+  declared containers.
+
+---
+
 # paste-surface-scala v0.11.0
 
 **Date:** 2026-10-29
