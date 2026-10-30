@@ -47,6 +47,17 @@ object SectionNavRenderingChecks {
     val legacy = render(SectionNav(items))
     assert(legacy == expectedLegacy, s"legacy render mismatch: expected=${expectedLegacy.replace("\n", "\\n")} actual=${legacy.replace("\n", "\\n")}")
 
+    // smoothscroll declares the nav itself as a paste.ui.smoothscroll
+    // container; without it the section links stay native.
+    val declared = render(SectionNav(items, smoothscroll = true))
+    assert(declared.contains("<nav class=\"paste-ui-section-nav\" data-paste-sticky-nav data-paste-smoothscroll>"),
+      "a smoothscroll nav declares data-paste-smoothscroll on its <nav>")
+    val declaredDisclosure = render(SectionNav(items, smoothscroll = true, disclosure = Some(NavDisclosure("declared-sections"))))
+    assert(declaredDisclosure.contains("<nav class=\"paste-ui-section-nav paste-ui-section-nav-disclosure\" data-paste-sticky-nav data-paste-smoothscroll>"),
+      "a smoothscroll disclosure nav declares data-paste-smoothscroll on its <nav>")
+    assert(count(declaredDisclosure, "data-paste-smoothscroll") == 1, "the declaration is the nav's alone")
+    assert(!legacy.contains("data-paste-smoothscroll"), "an undeclared nav leaves its links native")
+
     val disclosed = render(
       SectionNav(
         items,
