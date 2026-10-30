@@ -148,6 +148,12 @@ id. Disclosure state is the URL fragment — the `paste.ui.sectionnav`
 stylesheet owns presentation and no JavaScript module is involved. `panelId`
 and the derived `#<panelId>-toggle` id must both be unique per page.
 
+`SectionNav.smoothscroll` emits `data-paste-smoothscroll` on the `<nav>`,
+declaring it a `paste.ui.smoothscroll` container: its section links then move
+with smoothscroll's motion and completion history, while a disclosure nav's
+toggles and a section chosen from its open panel stay native. Without it,
+the default, the links are native fragment navigation.
+
 ```scala
 @paste.surface.components.html.sectionNav(SectionNav(
   items = Seq(NavItem("Overview", "overview"), NavItem("Details", "details")),
@@ -174,9 +180,11 @@ sets `scroll-margin-top` on its targets, or `scroll-padding-top` on the
 scrolling element, itself. Smooth motion is page
 CSS as well (`scroll-behavior`, with a `prefers-reduced-motion` rule).
 Give a destination `tabindex="-1"` when it should take focus; the hero renderer
-supplies this on its section. The standard UI jam includes smoothscroll for controlled movement and
-pushState without fragment navigation. It does not move focus; choose native
-anchors without that module when native target focus is required.
+supplies this on its section. The standard UI jam includes smoothscroll, which
+moves only links inside a `data-paste-smoothscroll` container
+(`SectionNav(smoothscroll = true)` declares it on its `<nav>`); their focus and
+`:target` settle as native navigation leaves them, unless the visitor moves
+focus during the motion, and every other link is native.
 
 ### Image sequence
 
@@ -662,9 +670,9 @@ Call `paste.ui.lazy_loader.load_visible_content(parent)` after showing content,
 or the original all/single APIs as appropriate. Rendering is not an automatic
 fetch request. Its visibility test is layout size, not viewport intersection.
 
-`IncludesFactory.defaultIncludes()` includes smoothscroll: same-document links
-animate and pushState without native target focus or hashchange. An explicit
-`Jam` without smoothscroll retains native fragment navigation. `Jam` can also
+`IncludesFactory.defaultIncludes()` includes smoothscroll, which moves only
+links inside a declared `data-paste-smoothscroll` container; every other
+same-document link is native fragment navigation. `Jam` can also
 request an app-owned external-library wrapper such as `libs.jquery`; the
 wrapper must be in the asset graph. No external-library ViewModel is necessary.
 
