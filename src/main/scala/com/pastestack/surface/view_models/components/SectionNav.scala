@@ -62,5 +62,6 @@ case class SectionNav(
   disclosure: Option[NavDisclosure] = None,
   scrollspyTouch: Boolean = false,
   ariaLabel: Option[String] = None,
-  smoothscroll: Boolean = false
+  smoothscroll: Boolean = false,
+  scrollspyHistory: Boolean = false
 )

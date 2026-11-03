@@ -1,3 +1,16 @@
+# paste-surface-scala v0.13.0
+
+**Date:** 2026-11-02
+
+## Added
+
+- `SectionNav(scrollspyHistory = true)` emits `data-spy-history` on the
+  `<nav>` alongside `data-paste-scrollspy` — the current history entry's
+  fragment follows the settled scrollspy selection. Like
+  `scrollspyTouch`, it renders nothing when `scrollspy` is false.
+
+---
+
 # paste-surface-scala v0.12.0
 
 **Date:** 2026-10-29
