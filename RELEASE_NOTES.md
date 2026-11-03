@@ -1,4 +1,6 @@
-# Unreleased
+# paste-surface-scala v0.13.0
+
+**Date:** 2026-11-02
 
 ## Added
 
