@@ -113,6 +113,31 @@ object SectionNavRenderingChecks {
     assert(!touchWithoutScrollspy.contains("data-paste-scrollspy"))
     assert(!touchWithoutScrollspy.contains("data-spy-touch"))
 
+    // data-spy-history follows the same gating as data-spy-touch:
+    // emitted only alongside scrollspy, in both nav branches.
+    assert(!legacy.contains("data-spy-history"), "scrollspy history is off by default")
+    val historyPlain = render(SectionNav(items, sticky = false, scrollspy = true, scrollspyHistory = true))
+    assert(historyPlain.contains("data-paste-scrollspy data-spy-history"),
+      "a scrollspy-history nav declares data-spy-history on its <nav>")
+    assert(count(historyPlain, "data-spy-history") == 1, "the declaration appears once")
+    val historyDisclosure = render(
+      SectionNav(
+        items,
+        sticky = false,
+        scrollspy = true,
+        scrollspyHistory = true,
+        disclosure = Some(NavDisclosure("history-sections"))
+      )
+    )
+    assert(historyDisclosure.contains("data-paste-scrollspy data-spy-history"),
+      "a disclosure scrollspy-history nav declares data-spy-history on its <nav>")
+    assert(count(historyDisclosure, "data-spy-history") == 1, "the declaration appears once")
+    val historyWithoutScrollspy = render(
+      SectionNav(items, sticky = false, scrollspy = false, scrollspyHistory = true)
+    )
+    assert(!historyWithoutScrollspy.contains("data-spy-history"),
+      "scrollspy history without scrollspy emits nothing")
+
     val linked = render(
       SectionNav(
         Seq(NavItem("Approach", "approach", href = Some("/#approach")), NavItem("Home", "", href = Some("/"))),
